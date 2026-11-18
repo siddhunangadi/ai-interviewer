@@ -1,0 +1,11 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="96" height="96" viewBox="0 0 96 96">
+  <title>AI Interviewer</title>
+  <rect width="96" height="96" rx="26" fill="#1d1d1f"/>
+  <g fill="#ffffff">
+    <rect x="25" y="38" width="6" height="20" rx="3"/>
+    <rect x="36" y="28" width="6" height="40" rx="3"/>
+    <rect x="47" y="34" width="6" height="28" rx="3"/>
+    <rect x="58" y="24" width="6" height="48" rx="3"/>
+    <rect x="69" y="40" width="6" height="16" rx="3"/>
+  </g>
+</svg>

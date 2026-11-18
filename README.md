@@ -1,158 +1,170 @@
-# AI Interviewer
+<p align="center">
+  <img src="docs/logo.svg" width="88" alt="AI Interviewer logo">
+</p>
 
-AI voice interviews for hiring teams. A company creates a job with its own **evaluation rubric**, sends each candidate a **personal invite link**, and the candidate has a live spoken interview with an AI that has read their resume and GitHub. The interview is recorded, then scored criterion by criterion against the rubric, with evidence from the transcript.
+<h1 align="center">AI Interviewer</h1>
 
-Built with **FastAPI**, **Supabase** (Postgres, Storage, Auth), **OpenAI Realtime**, **Gemini**, and plain **HTML/CSS/JS**.
+<p align="center">
+  <b>Job interviews that run themselves.</b><br>
+  Send a link. The AI does the interview. You get the score.
+</p>
 
-![Architecture](architecture.svg)
+<p align="center">
+  <a href="video/ai-interviewer.mp4">▶ Watch the video</a> ·
+  <a href="#-try-it-in-5-minutes">Try it</a> ·
+  <a href="#-questions">Questions</a>
+</p>
 
-## How it works
+<p align="center">
+  <a href="video/ai-interviewer.mp4"><img src="video/ai-interviewer.gif" width="820" alt="AI Interviewer in 46 seconds: create a job, send a link, the candidate talks to the AI, you get the score"></a>
+</p>
 
-**Recruiters** (`/signup`, `/signin`, `/app`)
-- Sign up with email and password (or Google, once enabled) and create a company workspace.
-- **Jobs:** create a job with a rubric of up to 8 criteria. Each has a name, a description of a strong answer, and a weight; weights add up to 100%. Optional notes tell the interviewer what to focus on.
-- **Invites:** create a personal link per candidate. It works once and expires in 7 days. Copy it or open a pre-written email.
-- **Candidates:** recording, resume, overall score, per-criterion scores with evidence, strengths, weaknesses and transcript. You only ever see your own company's candidates.
-- **Team:** the workspace owner invites HR partners and engineers by email (`/join/<code>`).
+---
 
-**Candidates** (`/i/<code>`): no account. Open the link, upload a resume, talk to the interviewer, submit. Candidates don't see their score; it goes to the hiring team.
+## 👋 Meet AI Interviewer
 
-**Scoring:** the rubric is copied onto each interview when it starts, so editing a job later never changes past scores. Gemini scores every criterion from 0 to 10 with one sentence of evidence, and the server computes the weighted overall score itself.
+Hiring takes forever. Calls get scheduled, then moved, then missed. One person takes notes, someone else forgets to. Everyone scores differently.
 
-## 1. Supabase setup
+**AI Interviewer handles the first-round interview for you.**
 
-Run this in the **Supabase SQL Editor**. It is safe to run more than once.
+Your candidate clicks a link and talks to an AI interviewer, out loud, like a normal video call. Then a score, a short report and the full recording show up in your dashboard.
 
-```sql
-create table if not exists interviews (
-  id uuid primary key default gen_random_uuid(),
-  created_at timestamptz not null default now(),
-  status text not null default 'Pre',
-  score integer not null default 0,
-  feedback text
-);
-alter table interviews add column if not exists candidate_name text;
-alter table interviews add column if not exists candidate_email text;
-alter table interviews add column if not exists role text not null default 'Software Engineer';
-alter table interviews add column if not exists github_url text;
-alter table interviews add column if not exists github_metadata jsonb not null default '[]'::jsonb;
-alter table interviews add column if not exists resume_text text;
-alter table interviews add column if not exists resume_path text;
-alter table interviews add column if not exists recording_path text;
-alter table interviews add column if not exists strengths jsonb not null default '[]'::jsonb;
-alter table interviews add column if not exists weaknesses jsonb not null default '[]'::jsonb;
-alter table interviews add column if not exists recommendation text;
-alter table interviews add column if not exists error text;
-alter table interviews drop constraint if exists interviews_status_check;
-alter table interviews add constraint interviews_status_check
-  check (status in ('Pre', 'InProgress', 'Scoring', 'Done', 'Failed'));
+You don't schedule anything or sit in the call.
 
-create table if not exists messages (
-  id uuid primary key default gen_random_uuid(),
-  interview_id uuid not null references interviews(id) on delete cascade,
-  type text not null check (type in ('User', 'Assistant')),
-  message text not null,
-  created_at timestamptz not null default now()
-);
+---
 
-create table if not exists companies (
-  id uuid primary key default gen_random_uuid(),
-  name text not null,
-  created_at timestamptz not null default now()
-);
-create table if not exists recruiters (
-  user_id uuid primary key references auth.users(id) on delete cascade,
-  company_id uuid not null references companies(id) on delete cascade,
-  full_name text not null,
-  email text not null,
-  role text not null default 'member' check (role in ('owner', 'member')),
-  created_at timestamptz not null default now()
-);
-create table if not exists jobs (
-  id uuid primary key default gen_random_uuid(),
-  company_id uuid not null references companies(id) on delete cascade,
-  title text not null,
-  focus text,
-  rubric jsonb not null default '[]'::jsonb,
-  created_by uuid references auth.users(id) on delete set null,
-  created_at timestamptz not null default now()
-);
-create table if not exists invites (
-  id uuid primary key default gen_random_uuid(),
-  token text not null unique,
-  company_id uuid not null references companies(id) on delete cascade,
-  job_id uuid not null references jobs(id) on delete cascade,
-  candidate_name text not null,
-  candidate_email text not null,
-  created_by uuid references auth.users(id) on delete set null,
-  created_at timestamptz not null default now(),
-  expires_at timestamptz not null,
-  used_at timestamptz,
-  interview_id uuid references interviews(id) on delete set null
-);
-create table if not exists team_invites (
-  id uuid primary key default gen_random_uuid(),
-  token text not null unique,
-  company_id uuid not null references companies(id) on delete cascade,
-  email text not null,
-  created_by uuid references auth.users(id) on delete set null,
-  created_at timestamptz not null default now(),
-  expires_at timestamptz not null,
-  used_at timestamptz,
-  used_by uuid references auth.users(id) on delete set null
-);
+## ✨ How it works
 
-alter table interviews add column if not exists company_id uuid references companies(id) on delete cascade;
-alter table interviews add column if not exists job_id uuid references jobs(id) on delete set null;
-alter table interviews add column if not exists rubric jsonb not null default '[]'::jsonb;
-alter table interviews add column if not exists rubric_scores jsonb not null default '[]'::jsonb;
+### 1. Create a job
+Type the job title and write down what you care about. For example:
 
-create index if not exists interviews_company_idx on interviews (company_id, created_at desc);
-create index if not exists interviews_job_idx on interviews (job_id);
-create index if not exists messages_interview_idx on messages (interview_id, created_at);
-create index if not exists recruiters_company_idx on recruiters (company_id);
-create index if not exists jobs_company_idx on jobs (company_id, created_at desc);
-create index if not exists invites_company_idx on invites (company_id, created_at desc);
-create index if not exists invites_job_idx on invites (job_id);
-create index if not exists team_invites_company_idx on team_invites (company_id);
+> System design **40%** · Python **30%** · Communication **20%** · Ownership **10%**
 
--- Only the server (secret key) can read or write these tables.
-alter table interviews enable row level security;
-alter table messages enable row level security;
-alter table companies enable row level security;
-alter table recruiters enable row level security;
-alter table jobs enable row level security;
-alter table invites enable row level security;
-alter table team_invites enable row level security;
+That's your scoring checklist. Every candidate is judged on it.
 
--- Private buckets: files are only reachable through short-lived signed URLs.
-drop policy if exists "Public Access Recordings" on storage.objects;
-drop policy if exists "Public Access Resumes" on storage.objects;
-insert into storage.buckets (id, name, public, file_size_limit)
-values ('resumes', 'resumes', false, 5242880),
-       ('recordings', 'recordings', false, 52428800)
-on conflict (id) do update set public = false, file_size_limit = excluded.file_size_limit;
+### 2. Send a link
+Type the candidate's name and email, then click **Create link**. Each candidate gets their own private link.
+
+- No account needed for the candidate
+- Works once
+- Expires after 7 days
+
+### 3. They talk, the AI listens
+The candidate opens the link, uploads their resume and starts talking.
+
+The AI has **already read their resume and GitHub**, so it asks about *their* work:
+
+> *"I saw the rate limiter in your queue-kit repo. Why did you choose a token bucket?"*
+
+### 4. You get the answer
+When they finish, you see:
+
+| | |
+|---|---|
+| 🎯 **Overall score** | One number out of 100 |
+| 📋 **Checklist scores** | 0–10 for each item, with the exact words that earned it |
+| 💪 **Strengths and weaknesses** | A few plain sentences |
+| 🎥 **Recording** | Watch the whole interview |
+| 📝 **Transcript** | Read every question and answer |
+
+The candidate never sees their score. Only your team does.
+
+---
+
+## 💡 Why you'll like it
+
+**If you hire people**
+- Interview 50 candidates in the time it takes to schedule 5
+- Everyone gets the same checklist, so scores are fair and easy to compare
+- Watch the recording only when you need to
+
+**If you're the candidate**
+- Interview when it suits you, at 9am or midnight
+- Nothing to download and no account to make
+- Questions about your real work, not trick puzzles
+
+**If you're on the team**
+- The account owner invites you by email
+- Everyone sees the same jobs and candidates
+
+---
+
+## 🚀 Try it in 5 minutes
+
+You'll need these four things (all have free tiers or are cheap to start):
+
+- [Python 3.10 or newer](https://www.python.org/downloads/)
+- A [Supabase](https://supabase.com) account (stores your data)
+- An [OpenAI API key](https://platform.openai.com/api-keys) (the interviewer's voice)
+- A [Gemini API key](https://aistudio.google.com/apikey) (does the scoring)
+
+**Step 1: Download and install**
+```bash
+git clone https://github.com/siddhunangadi/ai-interviewer.git && cd ai-interviewer
+```
+```bash
+python3 -m venv .venv && .venv/bin/pip install -r requirements.txt
 ```
 
-### Auth settings (Supabase dashboard → Authentication)
+**Step 2: Set up the database**
+In Supabase, open **SQL Editor**, paste everything from [`schema.sql`](schema.sql), and click **Run**.
 
-1. **URL Configuration:** set **Site URL** to `http://localhost:8000` and add `http://localhost:8000/**` under **Redirect URLs**. When you deploy, add your real domain the same way. Without this, confirmation and password-reset emails link to the wrong address.
-2. **Emails:** Supabase's built-in email sender is for testing. It only delivers to your project's team members and sends just a few emails per hour. For real users, add your own SMTP provider (Resend, Amazon SES, Postmark…) under **Emails → SMTP Settings**. For local testing you can instead turn off **Confirm email** under **Sign In / Providers → Email**.
-3. **Google sign-in (optional):** enable **Google** under **Sign In / Providers** with a Google Cloud OAuth client. The "Continue with Google" button appears automatically once it is enabled.
-
-## 2. Environment
-
-Copy `.env.example` to `.env` and fill in every value. `SUPABASE_SERVICE_KEY` is the **secret** key (server only). `SUPABASE_PUBLISHABLE_KEY` is the **publishable** key (safe in the browser, used only for signing in).
-
-## 3. Run locally
-
+**Step 3: Add your keys**
 ```bash
-.venv/bin/pip install -r requirements.txt
+cp .env.example .env
+```
+Open `.env` and paste in your keys. Each line says where to find that key.
+
+**Step 4: Start it**
+```bash
 .venv/bin/uvicorn main:app --reload --port 8000
 ```
 
-- Homepage: `http://localhost:8000`
-- Sign up / recruiter app: `http://localhost:8000/signup` → `http://localhost:8000/app`
-- Candidate links look like `http://localhost:8000/i/<code>` and are created from a job's page.
+**Step 5: Try it**
+Open **http://localhost:8000** → **Sign up** → create a job → send yourself a link → do an interview. 🎉
 
-Recordings are capped at 50 MB (the Supabase free-tier file limit), roughly 20 minutes of video at the built-in bitrate.
+<details>
+<summary><b>Getting ready for real users? (3 quick settings)</b></summary>
+
+<br>
+
+In Supabase, go to **Authentication**:
+
+1. **URL Configuration:** set the Site URL to your website address and add `https://your-site.com/**` to Redirect URLs. (For testing on your computer, use `http://localhost:8000`.)
+2. **Emails:** Supabase's built-in email only sends a few emails an hour. Connect a real email service (Resend, Amazon SES, Postmark…) under **SMTP Settings**. Just testing? Turn off **Confirm email** instead.
+3. **Google sign-in (optional):** turn on **Google** under Sign In / Providers. The "Continue with Google" button appears by itself.
+
+Putting it on a server? Follow [`deploy/DEPLOY.md`](deploy/DEPLOY.md).
+</details>
+
+---
+
+## ❓ Questions
+
+**Is it fair to candidates?**
+Everyone applying for the same job is scored on the same checklist. If you change the checklist later, old scores don't change.
+
+**Who can see the results?**
+Only your company's team. Other companies can't see your candidates. Resumes and recordings are stored privately.
+
+**Does the candidate need to sign up?**
+No. They just click the link.
+
+**How long is an interview?**
+Short. The AI asks 3 to 5 questions, one at a time. Recordings can be up to about 20 minutes.
+
+**Does the AI make the hiring decision?**
+No. It gives you a score and the evidence behind it. You decide.
+
+**What does the candidate need?**
+A microphone and a web browser. Chrome, Edge or Safari work best.
+
+---
+
+## 🛠 Under the hood
+
+![How AI Interviewer works](architecture.svg)
+
+Built with **FastAPI** (Python) · **Supabase** (database, files, login) · **OpenAI Realtime** (voice) · **Gemini** (scoring) · plain **HTML, CSS and JavaScript**.
+
+<p align="center"><sub>Create a job. Send a link. Read the results.</sub></p>

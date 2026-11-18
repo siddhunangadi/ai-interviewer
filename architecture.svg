@@ -1,188 +1,138 @@
-<svg xmlns="http://www.w3.org/2000/svg" width="1200" height="840" viewBox="0 0 1200 840" font-family="Inter, -apple-system, 'Segoe UI', Helvetica, Arial, sans-serif">
+<svg xmlns="http://www.w3.org/2000/svg" width="1600" height="960" viewBox="0 0 1600 960">
+  <title>How AI Interviewer works</title>
+  <style>
+    svg { font-family: -apple-system, BlinkMacSystemFont, "SF Pro Text", "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif; }
+    .bg { fill: #f5f5f7; }
+    .card { fill: #ffffff; stroke: rgba(0,0,0,0.08); stroke-width: 1; }
+    .hero { fill: #1d1d1f; }
+    .h1 { fill: #1d1d1f; font-size: 40px; font-weight: 700; letter-spacing: -0.8px; }
+    .sub { fill: #6e6e73; font-size: 20px; letter-spacing: -0.2px; }
+    .eyebrow { fill: #86868b; font-size: 12px; font-weight: 600; letter-spacing: 1.4px; }
+    .name { fill: #1d1d1f; font-size: 22px; font-weight: 600; letter-spacing: -0.3px; }
+    .desc { fill: #6e6e73; font-size: 15px; }
+    .hname { fill: #ffffff; font-size: 24px; font-weight: 600; letter-spacing: -0.3px; }
+    .hmeta { fill: #a1a1a6; font-size: 14px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+    .hstep { fill: #f5f5f7; font-size: 16px; }
+    .hnum { fill: #86868b; font-size: 13px; font-family: ui-monospace, "SF Mono", Menlo, Consolas, monospace; }
+    .rule { stroke: rgba(255,255,255,0.12); stroke-width: 1; }
+    .line { fill: none; stroke: #86868b; stroke-width: 1.5; }
+    .voice { fill: none; stroke: #0071e3; stroke-width: 2.5; }
+    .lbl { fill: #6e6e73; font-size: 13.5px; }
+    .vlbl { fill: #0071e3; font-size: 14px; font-weight: 600; }
+    .chev { fill: none; stroke: #86868b; stroke-width: 1.5; stroke-linecap: round; stroke-linejoin: round; }
+    .vchev { fill: none; stroke: #0071e3; stroke-width: 2.5; stroke-linecap: round; stroke-linejoin: round; }
+    .foot { fill: #86868b; font-size: 14px; }
+    .dot { fill: #0071e3; }
+    @media (prefers-color-scheme: dark) {
+      .bg { fill: #000000; }
+      .card { fill: #1c1c1e; stroke: rgba(255,255,255,0.09); }
+      .hero { fill: #2c2c2e; }
+      .h1, .name { fill: #f5f5f7; }
+      .sub, .desc, .lbl { fill: #a1a1a6; }
+      .line { stroke: #636366; }
+      .chev { stroke: #636366; }
+      .voice, .vchev { stroke: #0a84ff; }
+      .vlbl, .dot { fill: #0a84ff; }
+    }
+  </style>
   <defs>
-    <marker id="arr" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="#475569"/>
+    <marker id="a" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="12" markerHeight="12" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path class="chev" d="M3,1.5 L10,6 L3,10.5"/>
     </marker>
-    <marker id="arrP" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="#9333ea"/>
+    <marker id="v" viewBox="0 0 12 12" refX="10" refY="6" markerWidth="14" markerHeight="14" markerUnits="userSpaceOnUse" orient="auto-start-reverse">
+      <path class="vchev" d="M3,1.5 L10,6 L3,10.5"/>
     </marker>
-    <marker id="arrG" viewBox="0 0 10 10" refX="9" refY="5" markerWidth="7" markerHeight="7" orient="auto-start-reverse">
-      <path d="M0,0 L10,5 L0,10 z" fill="#059669"/>
-    </marker>
+    <filter id="s" x="-10%" y="-10%" width="120%" height="140%">
+      <feDropShadow dx="0" dy="12" stdDeviation="14" flood-color="#000" flood-opacity="0.06"/>
+    </filter>
   </defs>
 
-  <rect width="1200" height="840" fill="#fafaf9"/>
+  <rect class="bg" width="1600" height="960"/>
 
-  <!-- Title -->
-  <text x="40" y="48" font-size="26" font-weight="700" fill="#0f172a">AI Interviewer: Architecture</text>
-  <text x="40" y="72" font-size="14" fill="#475569">Recruiter creates a job + rubric → sends an invite link → candidate interviews by voice → AI scores each rubric criterion</text>
+  <!-- Heading -->
+  <text class="h1" x="80" y="100">How AI Interviewer works</text>
+  <text class="sub" x="80" y="138">Two people, one server, four services. The voice call never touches our server.</text>
 
-  <!-- Column headers -->
-  <text x="40" y="106" font-size="12" font-weight="700" fill="#2563eb" letter-spacing="1.2">BROWSER · index.html + app.html</text>
-  <text x="440" y="106" font-size="12" font-weight="700" fill="#7c3aed" letter-spacing="1.2">SERVER · main.py (Python + FastAPI)</text>
-  <text x="900" y="106" font-size="12" font-weight="700" fill="#059669" letter-spacing="1.2">EXTERNAL SERVICES</text>
+  <!-- Column labels -->
+  <text class="eyebrow" x="80" y="226">PEOPLE</text>
+  <text class="eyebrow" x="630" y="226">OUR SERVER</text>
+  <text class="eyebrow" x="1180" y="226">SERVICES WE USE</text>
 
-  <!-- WebRTC direct audio path (top) -->
-  <path d="M180,150 V128 H1030 V150" fill="none" stroke="#9333ea" stroke-width="2" stroke-dasharray="7 5" marker-start="url(#arrP)" marker-end="url(#arrP)"/>
-  <rect x="452" y="118" width="316" height="20" rx="10" fill="#fafaf9"/>
-  <text x="610" y="132" font-size="12" font-weight="600" fill="#9333ea" text-anchor="middle">WebRTC: live voice goes browser ⇄ OpenAI directly</text>
+  <!-- ===== Connections (drawn first, under the cards) ===== -->
+  <!-- Recruiter -> server -->
+  <path class="line" d="M420,335 H626" marker-end="url(#a)"/>
+  <text class="lbl" x="525" y="322" text-anchor="middle">jobs, links, results</text>
 
-  <!-- ============ LEFT: Candidate ============ -->
-  <rect x="40" y="150" width="280" height="250" rx="14" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
-  <text x="60" y="180" font-size="17" font-weight="700" fill="#1e3a8a">Candidate</text>
+  <!-- Candidate -> server -->
+  <path class="line" d="M420,690 H748 Q760,690 760,678 V614" marker-end="url(#a)"/>
+  <text class="lbl" x="580" y="677" text-anchor="middle">resume + recording</text>
 
-  <g font-size="13.5" fill="#0f172a">
-    <circle cx="70" cy="214" r="10" fill="#3b82f6"/><text x="70" y="218.5" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">1</text>
-    <text x="90" y="214" font-weight="600">Open personal invite link</text>
-    <text x="90" y="231" font-size="12" fill="#475569">no account · upload resume (PDF/DOCX)</text>
+  <!-- Server -> services -->
+  <path class="line" d="M974,310 H1176" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="lbl" x="1075" y="297" text-anchor="middle">saves everything</text>
 
-    <circle cx="70" cy="260" r="10" fill="#3b82f6"/><text x="70" y="264.5" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">2</text>
-    <text x="90" y="260" font-weight="600">Live voice interview</text>
-    <text x="90" y="277" font-size="12" fill="#475569">mic + camera, AI talks back</text>
+  <path class="line" d="M970,430 H1176" marker-end="url(#a)"/>
+  <text class="lbl" x="1075" y="417" text-anchor="middle">reads their projects</text>
 
-    <circle cx="70" cy="306" r="10" fill="#3b82f6"/><text x="70" y="310.5" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">3</text>
-    <text x="90" y="306" font-weight="600">Recorded in the browser</text>
-    <text x="90" y="323" font-size="12" fill="#475569">MediaRecorder mixes both voices</text>
+  <path class="line" d="M970,550 H1176" marker-end="url(#a)"/>
+  <text class="lbl" x="1075" y="537" text-anchor="middle">scores the answers</text>
 
-    <circle cx="70" cy="352" r="10" fill="#3b82f6"/><text x="70" y="356.5" font-size="12" font-weight="700" fill="#fff" text-anchor="middle">4</text>
-    <text x="90" y="352" font-weight="600">Submit</text>
-    <text x="90" y="369" font-size="12" fill="#475569">score goes only to the hiring team</text>
+  <!-- Server -> OpenAI (start call, collect transcript) -->
+  <path class="line" d="M920,614 V733 Q920,745 932,745 H1176" marker-start="url(#a)" marker-end="url(#a)"/>
+  <text class="lbl" x="1060" y="732" text-anchor="middle">starts call, gets transcript</text>
+
+  <!-- Candidate <-> OpenAI: live voice -->
+  <path class="voice" d="M424,790 H1174" marker-start="url(#v)" marker-end="url(#v)"/>
+  <rect class="bg" x="562" y="776" width="200" height="28"/>
+  <circle class="dot" cx="578" cy="790" r="5"/>
+  <text class="vlbl" x="592" y="795">Live voice conversation</text>
+
+  <!-- ===== People ===== -->
+  <g filter="url(#s)">
+    <rect class="card" x="80" y="260" width="340" height="150" rx="18"/>
+    <rect class="card" x="80" y="660" width="340" height="150" rx="18"/>
   </g>
+  <text class="name" x="112" y="318">Recruiter</text>
+  <text class="desc" x="112" y="348">Creates a job and a scoring checklist,</text>
+  <text class="desc" x="112" y="372">sends links, reads the results.</text>
 
-  <!-- ============ LEFT: Recruiter ============ -->
-  <rect x="40" y="440" width="280" height="170" rx="14" fill="#eff6ff" stroke="#3b82f6" stroke-width="1.5"/>
-  <text x="60" y="470" font-size="17" font-weight="700" fill="#1e3a8a">Recruiter</text>
-  <text x="300" y="470" font-size="12" fill="#3b82f6" text-anchor="end" font-family="Menlo, Consolas, monospace">/app</text>
-  <g font-size="13" fill="#0f172a">
-    <text x="60" y="502">•  Own account (Supabase Auth)</text>
-    <text x="60" y="527">•  Jobs, rubrics, invite links, team</text>
-    <text x="60" y="552">•  Score per criterion + evidence</text>
-    <text x="60" y="577">•  Watch recording, open resume</text>
+  <text class="name" x="112" y="718">Candidate</text>
+  <text class="desc" x="112" y="748">Opens their link, uploads a resume,</text>
+  <text class="desc" x="112" y="772">talks to the AI. No account needed.</text>
+
+  <!-- ===== Server ===== -->
+  <g filter="url(#s)">
+    <rect class="hero" x="630" y="250" width="340" height="360" rx="22"/>
   </g>
+  <text class="hname" x="662" y="306">AI Interviewer</text>
+  <text class="hmeta" x="662" y="332">Python · FastAPI</text>
+  <line class="rule" x1="662" y1="358" x2="938" y2="358"/>
+  <text class="hnum" x="662" y="398">01</text><text class="hstep" x="698" y="398">Checks the invite link</text>
+  <text class="hnum" x="662" y="442">02</text><text class="hstep" x="698" y="442">Reads the resume and GitHub</text>
+  <text class="hnum" x="662" y="486">03</text><text class="hstep" x="698" y="486">Saves every spoken line</text>
+  <text class="hnum" x="662" y="530">04</text><text class="hstep" x="698" y="530">Scores against the checklist</text>
+  <text class="hnum" x="662" y="574">05</text><text class="hstep" x="698" y="574">Shows results to your team only</text>
 
-  <!-- ============ MIDDLE: FastAPI ============ -->
-  <rect x="440" y="150" width="340" height="460" rx="14" fill="#f5f3ff" stroke="#7c3aed" stroke-width="1.5"/>
-  <text x="460" y="180" font-size="17" font-weight="700" fill="#4c1d95">FastAPI app</text>
-  <text x="760" y="180" font-size="12" fill="#7c3aed" text-anchor="end" font-family="Menlo, Consolas, monospace">uvicorn :8000</text>
-
-  <g>
-    <rect x="456" y="194" width="308" height="50" rx="8" fill="#fff" stroke="#ddd6fe"/>
-    <text x="468" y="214" font-size="12" font-weight="700" fill="#5b21b6" font-family="Menlo, Consolas, monospace">POST /api/v1/pre-interview</text>
-    <text x="468" y="233" font-size="12" fill="#475569">check invite · read resume · find GitHub</text>
-
-    <rect x="456" y="250" width="308" height="50" rx="8" fill="#fff" stroke="#ddd6fe"/>
-    <text x="468" y="270" font-size="12" font-weight="700" fill="#5b21b6" font-family="Menlo, Consolas, monospace">POST /api/v1/session/{id}</text>
-    <text x="468" y="289" font-size="12" fill="#475569">short-lived key · open call · start listener</text>
-
-    <rect x="456" y="306" width="308" height="50" rx="8" fill="#fff" stroke="#ddd6fe"/>
-    <text x="468" y="326" font-size="12" font-weight="700" fill="#5b21b6" font-family="Menlo, Consolas, monospace">POST /api/v1/recording/{id}</text>
-    <text x="468" y="345" font-size="12" fill="#475569">store video once (max 50 MB)</text>
-
-    <rect x="456" y="362" width="308" height="50" rx="8" fill="#fff" stroke="#ddd6fe"/>
-    <text x="468" y="382" font-size="12" font-weight="700" fill="#5b21b6" font-family="Menlo, Consolas, monospace">POST /api/v1/interviews/{id}/end</text>
-    <text x="468" y="401" font-size="12" fill="#475569">lock status to Scoring once · start scorer</text>
-
-    <rect x="456" y="418" width="308" height="50" rx="8" fill="#fff" stroke="#ddd6fe"/>
-    <text x="468" y="438" font-size="12" font-weight="700" fill="#5b21b6" font-family="Menlo, Consolas, monospace">GET  /api/v1/invite/{token}</text>
-    <text x="468" y="457" font-size="12" fill="#475569">company, job, link state</text>
-
-    <rect x="456" y="474" width="308" height="50" rx="8" fill="#fff" stroke="#ddd6fe"/>
-    <text x="468" y="494" font-size="12" font-weight="700" fill="#5b21b6" font-family="Menlo, Consolas, monospace">/api/v1/jobs · invites · team</text>
-    <text x="468" y="513" font-size="12" fill="#475569">only your company (sign-in token)</text>
-
-    <rect x="456" y="534" width="308" height="62" rx="8" fill="none" stroke="#7c3aed" stroke-dasharray="5 4"/>
-    <text x="468" y="554" font-size="12" font-weight="700" fill="#5b21b6">Background tasks (asyncio)</text>
-    <text x="468" y="571" font-size="12" fill="#475569">listener: saves each spoken line</text>
-    <text x="468" y="587" font-size="12" fill="#475569">scorer: rubric → Gemini → weighted score</text>
+  <!-- ===== Services ===== -->
+  <g filter="url(#s)">
+    <rect class="card" x="1180" y="260" width="340" height="100" rx="18"/>
+    <rect class="card" x="1180" y="380" width="340" height="100" rx="18"/>
+    <rect class="card" x="1180" y="500" width="340" height="100" rx="18"/>
+    <rect class="card" x="1180" y="700" width="340" height="120" rx="18"/>
   </g>
+  <text class="name" x="1212" y="303">Supabase</text>
+  <text class="desc" x="1212" y="330">Database, private files, logins</text>
 
-  <!-- ============ RIGHT: External ============ -->
-  <rect x="900" y="150" width="260" height="120" rx="14" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
-  <text x="920" y="178" font-size="16" font-weight="700" fill="#064e3b">OpenAI Realtime</text>
-  <text x="920" y="202" font-size="12.5" fill="#334155">gpt-realtime · voice “marin”</text>
-  <text x="920" y="222" font-size="12.5" fill="#334155">asks 3–4 tailored questions</text>
-  <text x="920" y="242" font-size="12.5" fill="#334155">transcribes both sides</text>
+  <text class="name" x="1212" y="423">GitHub</text>
+  <text class="desc" x="1212" y="450">Public projects linked in the resume</text>
 
-  <rect x="900" y="290" width="260" height="80" rx="14" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
-  <text x="920" y="318" font-size="16" font-weight="700" fill="#064e3b">GitHub API</text>
-  <text x="920" y="341" font-size="12.5" fill="#334155">latest public repos of the</text>
-  <text x="920" y="358" font-size="12.5" fill="#334155">user found in the resume</text>
+  <text class="name" x="1212" y="543">Gemini</text>
+  <text class="desc" x="1212" y="570">Grades each checklist item, 0–10</text>
 
-  <rect x="900" y="390" width="260" height="80" rx="14" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
-  <text x="920" y="418" font-size="16" font-weight="700" fill="#064e3b">Google Gemini</text>
-  <text x="920" y="441" font-size="12.5" fill="#334155">scores each rubric criterion</text>
-  <text x="920" y="458" font-size="12.5" fill="#334155">with evidence · backup models</text>
+  <text class="name" x="1212" y="748">OpenAI Realtime</text>
+  <text class="desc" x="1212" y="775">The interviewer’s voice. Asks</text>
+  <text class="desc" x="1212" y="798">questions about the candidate’s work.</text>
 
-  <rect x="900" y="490" width="260" height="120" rx="14" fill="#ecfdf5" stroke="#10b981" stroke-width="1.5"/>
-  <text x="920" y="518" font-size="16" font-weight="700" fill="#064e3b">Supabase</text>
-  <text x="920" y="542" font-size="12.5" fill="#334155"><tspan font-weight="600">DB:</tspan> companies, jobs, invites…</text>
-  <text x="920" y="562" font-size="12.5" fill="#334155"><tspan font-weight="600">Storage:</tspan> resumes, recordings</text>
-  <text x="920" y="586" font-size="12" fill="#64748b">Auth: recruiter accounts</text>
-
-  <!-- ============ Arrows: browser → server ============ -->
-  <line x1="320" y1="275" x2="438" y2="275" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
-  <text x="380" y="266" font-size="11" font-weight="600" fill="#334155" text-anchor="middle">HTTPS API</text>
-  <text x="380" y="291" font-size="10.5" fill="#64748b" text-anchor="middle">form · SDP · video</text>
-
-  <line x1="320" y1="499" x2="438" y2="499" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
-  <text x="380" y="490" font-size="11" font-weight="600" fill="#334155" text-anchor="middle">HTTPS API</text>
-  <text x="380" y="515" font-size="10.5" fill="#64748b" text-anchor="middle">sign-in token</text>
-
-  <!-- ============ Arrows: server → external ============ -->
-  <line x1="782" y1="210" x2="898" y2="210" stroke="#059669" stroke-width="2" marker-start="url(#arrG)" marker-end="url(#arrG)"/>
-  <text x="840" y="201" font-size="11" font-weight="600" fill="#334155" text-anchor="middle">create call</text>
-  <text x="840" y="226" font-size="10.5" fill="#64748b" text-anchor="middle">listen: transcripts</text>
-
-  <line x1="780" y1="330" x2="898" y2="330" stroke="#059669" stroke-width="2" marker-end="url(#arrG)"/>
-  <text x="840" y="321" font-size="11" font-weight="600" fill="#334155" text-anchor="middle">fetch repos</text>
-
-  <line x1="780" y1="430" x2="898" y2="430" stroke="#059669" stroke-width="2" marker-end="url(#arrG)"/>
-  <text x="840" y="421" font-size="11" font-weight="600" fill="#334155" text-anchor="middle">grade</text>
-
-  <line x1="782" y1="550" x2="898" y2="550" stroke="#059669" stroke-width="2" marker-start="url(#arrG)" marker-end="url(#arrG)"/>
-  <text x="840" y="541" font-size="11" font-weight="600" fill="#334155" text-anchor="middle">rows + files</text>
-  <text x="840" y="566" font-size="10.5" fill="#64748b" text-anchor="middle">signed links</text>
-
-  <!-- Recruiter loads media straight from Supabase via signed URL -->
-  <path d="M180,610 V640 H1030 V612" fill="none" stroke="#059669" stroke-width="2" stroke-dasharray="7 5" marker-end="url(#arrG)"/>
-  <rect x="352" y="630" width="516" height="20" rx="10" fill="#fafaf9"/>
-  <text x="610" y="644" font-size="12" font-weight="600" fill="#059669" text-anchor="middle">sign-in via Supabase Auth · video + resume via 10-minute private links</text>
-
-  <!-- ============ Status flow ============ -->
-  <rect x="40" y="676" width="1120" height="100" rx="14" fill="#fff" stroke="#e2e8f0"/>
-  <text x="60" y="703" font-size="12" font-weight="700" fill="#475569" letter-spacing="1.2">INTERVIEW STATUS</text>
-  <text x="60" y="722" font-size="12" fill="#64748b">interviews.status</text>
-
-  <g font-size="13" font-weight="700" text-anchor="middle">
-    <rect x="230" y="700" width="130" height="34" rx="17" fill="#e0e7ff"/><text x="295" y="722" fill="#3730a3">Pre</text>
-    <rect x="420" y="700" width="130" height="34" rx="17" fill="#ede9fe"/><text x="485" y="722" fill="#5b21b6">InProgress</text>
-    <rect x="610" y="700" width="130" height="34" rx="17" fill="#fef3c7"/><text x="675" y="722" fill="#92400e">Scoring</text>
-    <rect x="800" y="700" width="130" height="34" rx="17" fill="#d1fae5"/><text x="865" y="722" fill="#065f46">Done</text>
-    <rect x="990" y="700" width="130" height="34" rx="17" fill="#fee2e2"/><text x="1055" y="722" fill="#991b1b">Failed</text>
-  </g>
-  <g stroke="#94a3b8" stroke-width="2">
-    <line x1="362" y1="717" x2="416" y2="717" marker-end="url(#arr)"/>
-    <line x1="552" y1="717" x2="606" y2="717" marker-end="url(#arr)"/>
-    <line x1="742" y1="717" x2="796" y2="717" marker-end="url(#arr)"/>
-  </g>
-  <text x="960" y="722" font-size="12" fill="#64748b" text-anchor="middle">or</text>
-  <g font-size="11.5" fill="#64748b" text-anchor="middle">
-    <text x="295" y="755">resume saved</text>
-    <text x="485" y="755">voice call live</text>
-    <text x="675" y="755">Gemini grading</text>
-    <text x="865" y="755">score ready</text>
-    <text x="1055" y="755">error saved</text>
-  </g>
-
-  <!-- Legend -->
-  <g font-size="12" fill="#475569">
-    <line x1="40" y1="806" x2="80" y2="806" stroke="#475569" stroke-width="2" marker-end="url(#arr)"/>
-    <text x="90" y="810">browser → server (HTTPS)</text>
-    <line x1="290" y1="806" x2="330" y2="806" stroke="#059669" stroke-width="2" marker-end="url(#arrG)"/>
-    <text x="340" y="810">server or browser → service</text>
-    <line x1="560" y1="806" x2="600" y2="806" stroke="#9333ea" stroke-width="2" stroke-dasharray="7 5"/>
-    <text x="610" y="810">live audio (WebRTC)</text>
-    <rect x="780" y="797" width="36" height="18" rx="4" fill="none" stroke="#7c3aed" stroke-dasharray="5 4"/>
-    <text x="826" y="810">runs in the background</text>
-  </g>
+  <!-- Footnote -->
+  <text class="foot" x="80" y="892">Resumes and recordings are stored privately and opened through links that expire in 10 minutes. Each company sees only its own candidates.</text>
 </svg>

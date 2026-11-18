@@ -1,0 +1,323 @@
+<!doctype html>
+<html lang="en">
+<head>
+<meta charset="utf-8">
+<title>AI Interviewer explainer</title>
+<!--
+  A 46-second explainer, drawn frame by frame.
+  Open this file in a browser to watch it play, or run render.py to export an MP4.
+  Every frame is a pure function of time: render(t) with t in seconds.
+-->
+<style>
+  :root {
+    --page: #f5f5f7; --surface: #fff; --line: #d2d2d7; --hair: rgba(0,0,0,.08);
+    --text: #1d1d1f; --text-2: #6e6e73; --text-3: #86868b;
+    --accent: #0071e3; --good: #248a3d; --good-bg: #e8f5eb;
+    --font: -apple-system, BlinkMacSystemFont, "SF Pro Display", "Inter", "Segoe UI", Roboto, "Helvetica Neue", Arial, sans-serif;
+    --mono: ui-monospace, "SF Mono", Menlo, Consolas, monospace;
+  }
+  * { box-sizing: border-box; margin: 0; padding: 0; }
+  html, body { width: 1920px; height: 1080px; overflow: hidden; background: var(--page); }
+  body { font-family: var(--font); color: var(--text); -webkit-font-smoothing: antialiased; letter-spacing: -0.02em; }
+  #stage { position: relative; width: 1920px; height: 1080px; overflow: hidden; }
+  .scene { position: absolute; inset: 0; opacity: 0; will-change: opacity, transform; }
+
+  /* Shared two-column layout */
+  .copy { position: absolute; left: 160px; top: 50%; width: 620px; transform: translateY(-50%); }
+  .eyebrow { font-size: 22px; font-weight: 600; color: var(--accent); letter-spacing: .02em; margin-bottom: 22px; }
+  .h { font-size: 88px; line-height: 1.02; font-weight: 700; letter-spacing: -0.045em; }
+  .p { margin-top: 30px; font-size: 30px; line-height: 1.4; color: var(--text-2); letter-spacing: -0.015em; }
+  .panel { position: absolute; left: 880px; top: 50%; width: 880px; transform: translateY(-50%); }
+  .card { background: var(--surface); border-radius: 32px; box-shadow: 0 1px 1px rgba(0,0,0,.02), 0 40px 80px -30px rgba(0,0,0,.18); border: 1px solid var(--hair); padding: 52px 56px; }
+  .card-title { font-size: 36px; font-weight: 600; letter-spacing: -0.03em; }
+  .card-sub { font-size: 22px; color: var(--text-3); margin-top: 6px; }
+
+  /* Scene 0: title */
+  #s0 .center, #s5 .center { position: absolute; inset: 0; display: flex; flex-direction: column; align-items: center; justify-content: center; text-align: center; }
+  .logo { width: 96px; height: 96px; border-radius: 28px; background: var(--text); display: grid; place-items: center; margin-bottom: 44px; }
+  .logo span { display: block; width: 6px; border-radius: 3px; background: #fff; margin: 0 3px; }
+  .logo .bars { display: flex; align-items: center; height: 44px; }
+  .title { font-size: 140px; font-weight: 700; letter-spacing: -0.05em; line-height: 1; }
+  .tagline { font-size: 44px; color: var(--text-2); margin-top: 28px; letter-spacing: -0.025em; }
+
+  /* Scene 1: checklist */
+  .crit { display: grid; grid-template-columns: 1fr 300px 90px; align-items: center; gap: 28px; padding: 26px 0; border-top: 1px solid var(--hair); font-size: 28px; }
+  .crit:first-of-type { margin-top: 36px; }
+  .track { height: 12px; border-radius: 6px; background: #e8e8ed; overflow: hidden; }
+  .fill { height: 100%; width: 0; border-radius: 6px; background: var(--text); }
+  .pct { text-align: right; font-variant-numeric: tabular-nums; color: var(--text-2); }
+  .total { display: flex; justify-content: space-between; align-items: center; padding-top: 30px; border-top: 1px solid var(--hair); font-size: 26px; color: var(--text-2); }
+  .ok { color: var(--good); font-weight: 600; display: flex; align-items: center; gap: 12px; }
+  .ok i { width: 34px; height: 34px; border-radius: 50%; background: var(--good-bg); display: grid; place-items: center; font-style: normal; font-size: 20px; }
+
+  /* Scene 2: invite */
+  .field { margin-top: 30px; }
+  .field label { display: block; font-size: 20px; color: var(--text-3); margin-bottom: 10px; }
+  .input { height: 76px; border-radius: 18px; border: 1px solid var(--line); padding: 0 26px; font-size: 28px; display: flex; align-items: center; }
+  .caret { display: inline-block; width: 2px; height: 34px; background: var(--accent); margin-left: 2px; }
+  .btn { margin-top: 36px; height: 76px; border-radius: 38px; background: var(--text); color: #fff; font-size: 26px; font-weight: 600; display: flex; align-items: center; justify-content: center; }
+  .link { margin-top: 36px; border-radius: 22px; background: #f5f5f7; padding: 26px 28px; display: flex; align-items: center; justify-content: space-between; }
+  .link code { font-family: var(--mono); font-size: 25px; letter-spacing: 0; }
+  .copy-btn { font-size: 22px; font-weight: 600; color: var(--accent); background: #e9f2fd; border-radius: 22px; padding: 10px 22px; min-width: 130px; text-align: center; }
+  .meta { margin-top: 18px; font-size: 21px; color: var(--text-3); }
+
+  /* Scene 3: interview */
+  .call { background: #1d1d1f; color: #f5f5f7; border-radius: 40px; height: 720px; position: relative; overflow: hidden; box-shadow: 0 40px 90px -30px rgba(0,0,0,.45); }
+  .call-top { position: absolute; left: 48px; right: 48px; top: 40px; display: flex; justify-content: space-between; align-items: center; font-size: 22px; color: #a1a1a6; }
+  .rec { display: flex; align-items: center; gap: 12px; }
+  .rec i { width: 12px; height: 12px; border-radius: 50%; background: #ff453a; }
+  .self { position: absolute; right: 48px; top: 96px; width: 200px; height: 140px; border-radius: 20px; background: linear-gradient(160deg, #3a3a3c, #2c2c2e); display: grid; place-items: center; font-size: 38px; font-weight: 600; color: #8e8e93; }
+  .wave { position: absolute; left: 0; right: 0; top: 230px; height: 200px; display: flex; align-items: center; justify-content: center; gap: 9px; }
+  .wave span { width: 9px; border-radius: 5px; background: #0a84ff; height: 8px; }
+  .who { position: absolute; left: 64px; top: 470px; font-size: 22px; font-weight: 600; letter-spacing: .02em; color: #0a84ff; }
+  .said { position: absolute; left: 64px; right: 64px; top: 512px; font-size: 36px; line-height: 1.32; letter-spacing: -0.02em; }
+
+  /* Scene 4: results */
+  .res-head { display: flex; justify-content: space-between; align-items: flex-start; }
+  .score { display: flex; align-items: baseline; gap: 8px; margin-top: 30px; }
+  .score b { font-size: 150px; line-height: 1; font-weight: 700; letter-spacing: -0.05em; font-variant-numeric: tabular-nums; }
+  .score span { font-size: 40px; color: var(--text-3); }
+  .badge { background: var(--good-bg); color: var(--good); font-size: 24px; font-weight: 600; border-radius: 26px; padding: 12px 26px; }
+  .rrow { display: grid; grid-template-columns: 1fr 260px 80px; gap: 26px; align-items: center; padding: 18px 0; font-size: 26px; border-top: 1px solid var(--hair); }
+  .rrow:first-of-type { margin-top: 30px; }
+  .rrow .fill { background: var(--accent); }
+  .quote { margin-top: 28px; background: #f5f5f7; border-radius: 22px; padding: 24px 28px; }
+  .quote small { display: block; font-size: 19px; color: var(--text-3); margin-bottom: 8px; }
+  .quote p { font-size: 26px; line-height: 1.38; }
+
+  /* Scene 5: end */
+  .end-line { font-size: 84px; font-weight: 700; letter-spacing: -0.045em; line-height: 1.12; opacity: 0; }
+  .end-line.dim { color: var(--text-3); }
+  .end-mark { margin-top: 70px; font-size: 30px; color: var(--text-2); opacity: 0; display: flex; align-items: center; gap: 16px; }
+  .end-mark .logo { width: 52px; height: 52px; border-radius: 15px; margin: 0; }
+  .end-mark .logo .bars { height: 24px; }
+  .end-mark .logo span { width: 4px; margin: 0 2px; }
+
+  #progress { position: absolute; left: 0; bottom: 0; height: 4px; background: var(--accent); width: 0; opacity: .85; }
+</style>
+</head>
+<body>
+<div id="stage">
+
+  <!-- 0 · Title -->
+  <section class="scene" id="s0">
+    <div class="center">
+      <div class="logo" id="logo0"><div class="bars"><span></span><span></span><span></span><span></span><span></span></div></div>
+      <div class="title" id="t0">AI Interviewer</div>
+      <div class="tagline" id="g0">Job interviews that run themselves.</div>
+    </div>
+  </section>
+
+  <!-- 1 · Create a job -->
+  <section class="scene" id="s1">
+    <div class="copy">
+      <div class="eyebrow">Step 1</div>
+      <div class="h">Create a job.</div>
+      <div class="p">Write down what a great answer looks like. That becomes the scoring checklist.</div>
+    </div>
+    <div class="panel"><div class="card" id="jobcard">
+      <div class="card-title">Senior Backend Engineer</div>
+      <div class="card-sub">Scoring checklist</div>
+      <div class="crit"><div>System design</div><div class="track"><div class="fill"></div></div><div class="pct">40%</div></div>
+      <div class="crit"><div>Python</div><div class="track"><div class="fill"></div></div><div class="pct">30%</div></div>
+      <div class="crit"><div>Communication</div><div class="track"><div class="fill"></div></div><div class="pct">20%</div></div>
+      <div class="crit"><div>Ownership</div><div class="track"><div class="fill"></div></div><div class="pct">10%</div></div>
+      <div class="total" id="total"><span>Adds up to 100%</span><span class="ok"><i>✓</i>Ready</span></div>
+    </div></div>
+  </section>
+
+  <!-- 2 · Send a link -->
+  <section class="scene" id="s2">
+    <div class="copy">
+      <div class="eyebrow">Step 2</div>
+      <div class="h">Send a link.</div>
+      <div class="p">Each candidate gets their own private link. No account, no app, no scheduling.</div>
+    </div>
+    <div class="panel"><div class="card">
+      <div class="card-title">Invite a candidate</div>
+      <div class="field"><label>Name</label><div class="input"><span id="nm"></span><i class="caret" id="c1"></i></div></div>
+      <div class="field"><label>Email</label><div class="input"><span id="em"></span><i class="caret" id="c2"></i></div></div>
+      <div class="btn" id="mk">Create link</div>
+      <div id="linkwrap">
+        <div class="link"><code>ai-interviewer.app/i/7Kq2xR9m</code><span class="copy-btn" id="cp">Copy</span></div>
+        <div class="meta">Works once · Expires in 7 days</div>
+      </div>
+    </div></div>
+  </section>
+
+  <!-- 3 · Interview -->
+  <section class="scene" id="s3">
+    <div class="copy">
+      <div class="eyebrow">Step 3</div>
+      <div class="h">They talk.<br>The AI listens.</div>
+      <div class="p">A real voice conversation. The AI has read their resume and GitHub, so every question is about their work.</div>
+    </div>
+    <div class="panel"><div class="call">
+      <div class="call-top"><span class="rec"><i></i><span id="clock">08:42</span></span><span>Senior Backend Engineer</span></div>
+      <div class="self">PS</div>
+      <div class="wave" id="wave"></div>
+      <div class="who" id="who">INTERVIEWER</div>
+      <div class="said" id="said"></div>
+    </div></div>
+  </section>
+
+  <!-- 4 · Results -->
+  <section class="scene" id="s4">
+    <div class="copy">
+      <div class="eyebrow">Then</div>
+      <div class="h">You get the answer.</div>
+      <div class="p">A score for every item on your checklist, with the exact words that earned it.</div>
+    </div>
+    <div class="panel"><div class="card">
+      <div class="res-head">
+        <div><div class="card-title">Priya Shah</div><div class="card-sub">Senior Backend Engineer</div></div>
+        <div class="badge" id="badge">Move forward</div>
+      </div>
+      <div class="score"><b id="num">0</b><span>/ 100</span></div>
+      <div class="rrow"><div>System design</div><div class="track"><div class="fill"></div></div><div class="pct">9/10</div></div>
+      <div class="rrow"><div>Python</div><div class="track"><div class="fill"></div></div><div class="pct">8/10</div></div>
+      <div class="rrow"><div>Communication</div><div class="track"><div class="fill"></div></div><div class="pct">8/10</div></div>
+      <div class="rrow"><div>Ownership</div><div class="track"><div class="fill"></div></div><div class="pct">7/10</div></div>
+      <div class="quote" id="quote"><small>Why 9 on system design</small><p>“A token bucket lets short bursts through without dropping requests.”</p></div>
+    </div></div>
+  </section>
+
+  <!-- 5 · End -->
+  <section class="scene" id="s5">
+    <div class="center">
+      <div class="end-line">Create a job.</div>
+      <div class="end-line">Send a link.</div>
+      <div class="end-line">Read the results.</div>
+      <div class="end-mark"><div class="logo"><div class="bars"><span></span><span></span><span></span><span></span><span></span></div></div>AI Interviewer</div>
+    </div>
+  </section>
+
+  <div id="progress"></div>
+</div>
+
+<script>
+const DURATION = 46;
+const $ = s => document.querySelector(s);
+const $$ = s => [...document.querySelectorAll(s)];
+const clamp = (x, a = 0, b = 1) => Math.min(b, Math.max(a, x));
+const out3 = x => 1 - Math.pow(1 - x, 3);
+const inOut = x => x < .5 ? 4 * x * x * x : 1 - Math.pow(-2 * x + 2, 3) / 2;
+// 0→1 progress of an animation that starts at `a` and lasts `d` seconds
+const p = (t, a, d = .6, e = out3) => e(clamp((t - a) / d));
+
+// Fade + lift an element in at `a` (and optionally out at `b`)
+function reveal(el, t, a, d = .7, dy = 30) {
+  const k = p(t, a, d);
+  el.style.opacity = k;
+  el.style.transform = `translateY(${(1 - k) * dy}px)`;
+}
+// Whole scene: in at a, out at b
+function scene(el, t, a, b) {
+  const kin = p(t, a, .8), kout = p(t, b - .6, .6, inOut);
+  el.style.opacity = Math.min(kin, 1 - kout);
+  el.style.transform = `translateY(${(1 - kin) * 24 - kout * 24}px)`;
+  el.style.visibility = (t < a - .01 || t > b + .01) ? 'hidden' : 'visible';
+}
+const type = (text, t, a, cps = 18) => text.slice(0, Math.max(0, Math.floor((t - a) * cps)));
+const blink = t => (Math.floor(t * 2) % 2 === 0 ? 1 : 0);
+
+// Build the waveform bars once
+const BARS = 48;
+$('#wave').innerHTML = '<span></span>'.repeat(BARS);
+const bars = $$('#wave span');
+
+// Interview script for scene 3
+const LINES = [
+  { who: 'INTERVIEWER', ai: true,  a: 19.6, b: 24.4, text: 'I saw the rate limiter in your queue-kit repo. Why did you choose a token bucket?' },
+  { who: 'PRIYA',       ai: false, a: 24.6, b: 29.4, text: 'Our traffic came in bursts. A token bucket lets short bursts through without dropping requests.' },
+  { who: 'INTERVIEWER', ai: true,  a: 29.6, b: 32.0, text: 'Makes sense. How would it work across three servers?' },
+];
+
+function render(t) {
+  // 0 · Title (0 – 4.2)
+  scene($('#s0'), t, 0, 4.2);
+  reveal($('#logo0'), t, .2, .8, 20);
+  reveal($('#t0'), t, .5, .9, 30);
+  reveal($('#g0'), t, 1.1, .9, 20);
+  $$('#logo0 span').forEach((s, i) => { s.style.height = (14 + 26 * Math.abs(Math.sin(t * 3.2 + i * .9))) + 'px'; });
+  $$('.end-mark .logo span').forEach((s, i) => { s.style.height = (8 + 14 * Math.abs(Math.sin(t * 3.2 + i * .9))) + 'px'; });
+
+  // 1 · Create a job (4 – 12)
+  scene($('#s1'), t, 4, 12);
+  const weights = [40, 30, 20, 10];
+  $$('#s1 .crit').forEach((row, i) => {
+    const a = 5.2 + i * .45;
+    reveal(row, t, a, .6, 16);
+    row.querySelector('.fill').style.width = (p(t, a + .2, .9) * weights[i] / 40 * 100) + '%';
+  });
+  reveal($('#total'), t, 7.6, .6, 12);
+
+  // 2 · Send a link (12 – 19.2)
+  scene($('#s2'), t, 12, 19.2);
+  $('#nm').textContent = type('Priya Shah', t, 13.0, 14);
+  $('#em').textContent = type('priya@example.com', t, 14.0, 18);
+  $('#c1').style.opacity = t < 14 ? blink(t) : 0;
+  $('#c2').style.opacity = t >= 14 && t < 15.6 ? blink(t) : 0;
+  const press = t > 15.6 && t < 15.85;
+  $('#mk').style.transform = `scale(${press ? .97 : 1})`;
+  $('#mk').style.opacity = press ? .85 : 1;
+  reveal($('#linkwrap'), t, 15.9, .6, 14);
+  const copied = t > 17.0;
+  $('#cp').textContent = copied ? 'Copied ✓' : 'Copy';
+
+  // 3 · Interview (19 – 32.4)
+  scene($('#s3'), t, 19, 32.4);
+  const secs = 522 + Math.max(0, Math.floor(t - 19));
+  $('#clock').textContent = String(Math.floor(secs / 60)).padStart(2, '0') + ':' + String(secs % 60).padStart(2, '0');
+  const line = LINES.slice().reverse().find(l => t >= l.a) || LINES[0];
+  const speaking = t >= line.a && t <= line.b;
+  $('#who').textContent = line.who;
+  $('#who').style.color = line.ai ? '#0a84ff' : '#f5f5f7';
+  $('#said').textContent = type(line.text, t, line.a + .1, 24);
+  $('#said').style.opacity = p(t, line.a, .3);
+  bars.forEach((s, i) => {
+    const x = i / (BARS - 1);
+    const env = Math.sin(Math.PI * x);                                  // taller in the middle
+    const v = speaking
+      ? .25 + .75 * Math.abs(Math.sin(t * 7.3 + i * .55) * Math.sin(t * 3.1 + i * 1.7))
+      : .04;
+    s.style.height = (8 + 170 * env * v) + 'px';
+    s.style.background = line.ai ? '#0a84ff' : '#f5f5f7';
+  });
+
+  // 4 · Results (32 – 41.4)
+  scene($('#s4'), t, 32, 41.4);
+  $('#num').textContent = Math.round(83 * p(t, 33, 1.6));
+  reveal($('#badge'), t, 34.5, .6, 10);
+  const scores = [9, 8, 8, 7];
+  $$('#s4 .rrow').forEach((row, i) => {
+    const a = 33.4 + i * .35;
+    reveal(row, t, a, .5, 14);
+    row.querySelector('.fill').style.width = (p(t, a + .2, .9) * scores[i] * 10) + '%';
+  });
+  reveal($('#quote'), t, 36.2, .7, 16);
+
+  // 5 · End (41 – 46)
+  scene($('#s5'), t, 41, 46.6);
+  const lines = $$('.end-line');
+  lines.forEach((l, i) => {
+    reveal(l, t, 41.4 + i * .6, .7, 24);
+    l.classList.toggle('dim', t > 41.4 + (i + 1) * .6 + .2 && i < 2);
+  });
+  reveal($('.end-mark'), t, 43.6, .8, 14);
+
+  $('#progress').style.width = (clamp(t / DURATION) * 100) + '%';
+}
+
+// Exposed for render.py; when opened directly in a browser, play in real time.
+window.DURATION = DURATION;
+window.render = render;
+if (!new URLSearchParams(location.search).has('capture')) {
+  const start = performance.now();
+  (function loop() { render(((performance.now() - start) / 1000) % DURATION); requestAnimationFrame(loop); })();
+} else {
+  render(0);
+}
+</script>
+</body>
+</html>
