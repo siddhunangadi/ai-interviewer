@@ -1,0 +1,931 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <title>AI Interviewer</title>
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='7' fill='%231d1d1f'/%3E%3Cg fill='%23fff'%3E%3Crect x='5.75' y='10' width='2' height='4' rx='1'/%3E%3Crect x='9.25' y='7' width='2' height='10' rx='1'/%3E%3Crect x='12.75' y='4.5' width='2' height='15' rx='1'/%3E%3Crect x='16.25' y='8.5' width='2' height='7' rx='1'/%3E%3C/g%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <script src="https://cdn.jsdelivr.net/npm/@supabase/supabase-js@2.45.4/dist/umd/supabase.js"></script>
+</head>
+<body data-view="view-loading">
+
+  <nav class="nav app-nav">
+    <div class="nav-inner">
+      <div class="brand-group">
+        <a class="brand" href="/">
+          <svg class="logo" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect class="lb" width="24" height="24" rx="7"/><g class="lf"><rect x="5.75" y="10" width="2" height="4" rx="1"/><rect x="9.25" y="7" width="2" height="10" rx="1"/><rect x="12.75" y="4.5" width="2" height="15" rx="1"/><rect x="16.25" y="8.5" width="2" height="7" rx="1"/></g></svg>
+          AI Interviewer
+        </a>
+        <span id="nav-company" class="company hidden"></span>
+      </div>
+      <div id="app-tabs" class="tabs hidden" role="tablist">
+        <button class="tab" data-tab="candidates" role="tab">Candidates</button>
+        <button class="tab" data-tab="jobs" role="tab">Jobs</button>
+        <button class="tab" data-tab="team" role="tab">Team</button>
+      </div>
+      <div id="user-chip" class="user-chip hidden">
+        <span id="nav-avatar" class="avatar" title=""></span>
+        <button class="btn btn-secondary btn-sm" onclick="signOut()">Sign out</button>
+      </div>
+      <a id="nav-home" class="nav-link" href="/">Back to home</a>
+    </div>
+  </nav>
+
+  <main id="view-loading" class="state-wrap">
+    <div class="spinner"></div>
+  </main>
+
+  <!-- ================= Sign in / sign up / reset ================= -->
+  <main id="view-auth" class="auth-wrap hidden">
+    <form id="auth-form" class="card auth-card" onsubmit="submitAuth(event)" novalidate>
+      <svg class="logo" width="44" height="44" viewBox="0 0 24 24" aria-hidden="true"><rect class="lb" width="24" height="24" rx="7"/><g class="lf"><rect x="5.75" y="10" width="2" height="4" rx="1"/><rect x="9.25" y="7" width="2" height="10" rx="1"/><rect x="12.75" y="4.5" width="2" height="15" rx="1"/><rect x="16.25" y="8.5" width="2" height="7" rx="1"/></g></svg>
+      <div class="auth-title">
+        <h2 id="auth-title">Sign in</h2>
+        <p id="auth-sub"></p>
+      </div>
+      <div id="google-block" class="hidden">
+        <button type="button" class="btn btn-google" onclick="googleSignIn()">
+          <svg viewBox="0 0 24 24" aria-hidden="true"><path fill="#4285F4" d="M22.5 12.3c0-.8-.1-1.5-.2-2.3H12v4.3h5.9a5 5 0 0 1-2.2 3.3v2.7h3.6c2-1.9 3.2-4.7 3.2-8z"/><path fill="#34A853" d="M12 23c3 0 5.5-1 7.3-2.7l-3.6-2.7c-1 .7-2.2 1-3.7 1-2.9 0-5.3-1.9-6.2-4.5H2.1v2.8A11 11 0 0 0 12 23z"/><path fill="#FBBC05" d="M5.8 14.1a6.6 6.6 0 0 1 0-4.2V7.1H2.1a11 11 0 0 0 0 9.8z"/><path fill="#EA4335" d="M12 5.4c1.6 0 3.1.6 4.2 1.7l3.2-3.2A11 11 0 0 0 2.1 7.1l3.7 2.8C6.7 7.3 9.1 5.4 12 5.4z"/></svg>
+          Continue with Google
+        </button>
+        <div class="divider" style="margin-top:16px;">or</div>
+      </div>
+      <div id="email-field" class="field">
+        <label class="label" for="auth-email">Work email</label>
+        <input id="auth-email" class="input" type="email" maxlength="200" autocomplete="email" placeholder="you@company.com" />
+      </div>
+      <div id="password-field" class="field">
+        <div class="label-row">
+          <label class="label" for="auth-password">Password</label>
+          <button id="forgot-link" type="button" class="btn-link" onclick="setMode('forgot')">Forgot password?</button>
+        </div>
+        <input id="auth-password" class="input" type="password" maxlength="200" autocomplete="current-password" />
+      </div>
+      <div id="auth-info" class="info hidden"></div>
+      <div id="auth-error" class="alert hidden" role="alert"></div>
+      <button id="auth-submit" class="btn btn-lg" type="submit">Sign in</button>
+      <p id="auth-foot" class="auth-foot"></p>
+    </form>
+  </main>
+
+  <!-- ================= Workspace setup ================= -->
+  <main id="view-setup" class="auth-wrap hidden">
+    <form class="card auth-card" onsubmit="submitSetup(event)" novalidate>
+      <svg class="logo" width="44" height="44" viewBox="0 0 24 24" aria-hidden="true"><rect class="lb" width="24" height="24" rx="7"/><g class="lf"><rect x="5.75" y="10" width="2" height="4" rx="1"/><rect x="9.25" y="7" width="2" height="10" rx="1"/><rect x="12.75" y="4.5" width="2" height="15" rx="1"/><rect x="16.25" y="8.5" width="2" height="7" rx="1"/></g></svg>
+      <div class="auth-title">
+        <h2 id="setup-title">Set up your workspace</h2>
+        <p id="setup-sub">Tell us who you are and where you hire.</p>
+      </div>
+      <div class="field">
+        <label class="label" for="setup-name">Your name</label>
+        <input id="setup-name" class="input" type="text" maxlength="120" autocomplete="name" />
+      </div>
+      <div id="company-field" class="field">
+        <label class="label" for="setup-company">Company name</label>
+        <input id="setup-company" class="input" type="text" maxlength="120" autocomplete="organization" />
+      </div>
+      <div id="setup-error" class="alert hidden" role="alert"></div>
+      <button id="setup-submit" class="btn btn-lg" type="submit">Continue</button>
+      <p class="auth-foot"><span id="setup-email"></span> · <button type="button" class="btn-link" onclick="signOut()">Sign out</button></p>
+    </form>
+  </main>
+
+  <!-- ================= Recruiter app ================= -->
+  <main id="view-app" class="page hidden">
+
+    <!-- Candidates -->
+    <section id="pane-candidates" class="pane">
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">Candidates</p>
+          <h2>Interviews</h2>
+        </div>
+        <button class="btn btn-secondary btn-sm" onclick="loadRecruiterList()">
+          <svg class="icon" viewBox="0 0 24 24" style="width:15px;height:15px"><path d="M20 11a8 8 0 1 0-2.3 5.7"/><path d="M20 5v6h-6"/></svg>
+          Refresh
+        </button>
+      </header>
+      <div id="stats" class="stats"></div>
+      <div class="toolbar">
+        <div class="search">
+          <svg class="icon" viewBox="0 0 24 24"><circle cx="11" cy="11" r="7"/><path d="m20 20-3.5-3.5"/></svg>
+          <input id="search-input" class="input" type="search" placeholder="Search name, email or GitHub" oninput="renderRecruiterList()" />
+        </div>
+        <select id="filter-job" class="select" onchange="loadRecruiterList()"><option value="">All jobs</option></select>
+        <select id="filter-status" class="select" onchange="loadRecruiterList()">
+          <option value="">All statuses</option>
+          <option value="Done">Completed</option>
+          <option value="Scoring">Scoring</option>
+          <option value="InProgress">In progress</option>
+          <option value="Pre">Not started</option>
+          <option value="Failed">Failed</option>
+        </select>
+      </div>
+      <div class="dash">
+        <div id="cand-list" class="list"></div>
+        <div id="cand-detail" class="card detail">
+          <div class="empty">
+            <svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="8" r="4"/><path d="M4 21a8 8 0 0 1 16 0"/></svg>
+            <p>Select a candidate to see their recording, rubric scores and transcript.</p>
+          </div>
+        </div>
+      </div>
+    </section>
+
+    <!-- Jobs -->
+    <section id="pane-jobs" class="pane hidden">
+      <div id="jobs-index">
+        <header class="page-head">
+          <div>
+            <p class="eyebrow">Jobs</p>
+            <h2>Open roles</h2>
+          </div>
+          <button class="btn" onclick="openJobModal()">
+            <svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M12 5v14M5 12h14"/></svg>
+            New job
+          </button>
+        </header>
+        <div id="job-grid" class="job-grid"></div>
+      </div>
+      <div id="job-detail" class="hidden"></div>
+    </section>
+
+    <!-- Team -->
+    <section id="pane-team" class="pane hidden">
+      <header class="page-head">
+        <div>
+          <p class="eyebrow">Team</p>
+          <h2 id="team-company">Your team</h2>
+        </div>
+      </header>
+      <div class="job-layout">
+        <div class="panel">
+          <div class="panel-head"><h3>Members</h3></div>
+          <div id="member-list" class="inv-list"></div>
+        </div>
+        <div class="panel">
+          <div class="panel-head"><h3>Invite a teammate</h3></div>
+          <div id="team-invite-box">
+            <p class="note">Send HR partners and engineers a link. They create an account with that email and join this workspace.</p>
+            <form class="invite-form" style="grid-template-columns:1fr auto; margin-top:14px;" onsubmit="createTeamInvite(event)" novalidate>
+              <div class="field">
+                <label class="label" for="team-email">Email</label>
+                <input id="team-email" class="input" type="email" maxlength="200" placeholder="colleague@company.com" />
+              </div>
+              <button class="btn" type="submit" style="height:46px;">Create link</button>
+            </form>
+            <div id="team-error" class="alert hidden" style="margin-top:12px;"></div>
+            <div id="team-invite-result"></div>
+            <div class="sec-label">Pending invites</div>
+            <div id="team-pending" class="inv-list"></div>
+          </div>
+          <p id="team-member-note" class="note hidden">Only the workspace owner can invite teammates.</p>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <!-- ================= Job + rubric editor ================= -->
+  <dialog id="job-modal" class="modal">
+    <form class="modal-form" onsubmit="saveJob(event)" novalidate>
+      <div class="modal-head">
+        <h3 id="job-modal-title">New job</h3>
+        <p>Your HR and technical leads decide how candidates are scored.</p>
+      </div>
+      <div class="modal-body">
+        <div class="field">
+          <label class="label" for="job-title">Job title</label>
+          <input id="job-title" class="input" type="text" maxlength="120" list="role-suggestions" placeholder="e.g. Senior Backend Engineer" />
+          <datalist id="role-suggestions"></datalist>
+        </div>
+        <div class="field">
+          <label class="label" for="job-focus">Notes for the interviewer <span class="opt">optional</span></label>
+          <textarea id="job-focus" class="textarea" maxlength="1500" placeholder="e.g. Our stack is Python and Postgres. Spend time on API design and how they test their code."></textarea>
+        </div>
+        <div class="field">
+          <div class="label-row">
+            <span class="label">Evaluation rubric</span>
+            <span id="weight-total" class="note"></span>
+          </div>
+          <div id="crit-list" class="crit-list"></div>
+          <div class="rubric-foot">
+            <button type="button" class="btn-link" onclick="addCrit()">+ Add criterion</button>
+            <span>Weights are percentages and must add up to 100.</span>
+          </div>
+        </div>
+        <div id="job-error" class="alert hidden" role="alert"></div>
+      </div>
+      <div class="modal-foot">
+        <button type="button" class="btn btn-secondary" onclick="closeJobModal()">Cancel</button>
+        <button id="job-save" class="btn" type="submit">Create job</button>
+      </div>
+    </form>
+  </dialog>
+
+  <script>
+    const PATH = location.pathname.replace(/\/+$/, "") || "/";
+    const JOIN_TOKEN = (PATH.match(/^\/join\/([A-Za-z0-9_-]+)$/) || [])[1] || "";
+    const STATUS_LABELS = { Pre: "Not started", InProgress: "In progress", Scoring: "Scoring", Done: "Completed", Failed: "Failed" };
+    const MAX_CRITERIA = 8;
+    const EXTERNAL_ICON = `<svg class="icon" viewBox="0 0 24 24"><path d="M7 17 17 7"/><path d="M8 7h9v9"/></svg>`;
+    const X_ICON = `<svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="M6 6l12 12M18 6 6 18"/></svg>`;
+
+    let sb = null, cfg = null, me = null, authMode = "signin", joinInfo = null;
+    let jobs = [], defaultRubric = [], roleSuggestions = [];
+    let recruiterRows = [], selectedId = null, currentJobId = null, editingJobId = null;
+
+    // ---------- helpers ----------
+    function esc(value) {
+      return String(value ?? "").replace(/[&<>"']/g, c => ({ "&": "&amp;", "<": "&lt;", ">": "&gt;", '"': "&quot;", "'": "&#39;" }[c]));
+    }
+    function safeUrl(url) { return /^https:\/\//i.test(url || "") ? url : ""; }
+    function $(id) { return document.getElementById(id); }
+    function storageGet(k) { try { return localStorage.getItem(k) || ""; } catch (_) { return ""; } }
+    function storageSet(k, v) { try { localStorage.setItem(k, v); } catch (_) {} }
+    function storageDel(k) { try { localStorage.removeItem(k); } catch (_) {} }
+    function showError(elId, msg) { const el = $(elId); el.textContent = msg; el.classList.toggle("hidden", !msg); }
+    function showInfo(msg) { showError("auth-info", msg); }
+    async function apiError(res, fallback) {
+      const body = await res.json().catch(() => ({}));
+      return typeof body.detail === "string" ? body.detail : fallback;
+    }
+    function initials(name) {
+      const parts = String(name || "").replace(/^@/, "").trim().split(/\s+/).filter(Boolean);
+      const letters = (parts[0]?.[0] || "") + (parts.length > 1 ? parts[parts.length - 1][0] : "");
+      return letters.toUpperCase() || "?";
+    }
+    function formatDate(iso) {
+      if (!iso) return "";
+      const d = new Date(iso);
+      return d.toLocaleDateString(undefined, { month: "short", day: "numeric" }) + ", " +
+             d.toLocaleTimeString(undefined, { hour: "numeric", minute: "2-digit" });
+    }
+    function slug(s) { return String(s || "").toLowerCase().replace(/[^a-z0-9]+/g, "-"); }
+    function scoreColor(score) { return score >= 7 ? "var(--good)" : score >= 4 ? "var(--warn)" : "var(--bad)"; }
+    function toast(msg) {
+      const t = document.createElement("div");
+      t.className = "toast";
+      t.textContent = msg;
+      document.body.appendChild(t);
+      setTimeout(() => t.remove(), 2200);
+    }
+    async function copyText(text) {
+      try { await navigator.clipboard.writeText(text); toast("Link copied"); }
+      catch (_) { window.prompt("Copy this link:", text); }
+    }
+
+    function showView(id) {
+      ["view-loading", "view-auth", "view-setup", "view-app"].forEach(v => $(v).classList.toggle("hidden", v !== id));
+      document.body.dataset.view = id;
+      const inApp = id === "view-app";
+      ["app-tabs", "user-chip", "nav-company"].forEach(n => $(n).classList.toggle("hidden", !inApp));
+      $("nav-home").classList.toggle("hidden", inApp);
+      window.scrollTo(0, 0);
+    }
+
+    // Every recruiter API call carries the Supabase access token.
+    async function api(path, opts = {}) {
+      const { data } = await sb.auth.getSession();
+      if (!data.session) { location.replace("/signin"); throw new Error("Please sign in"); }
+      const headers = { Authorization: `Bearer ${data.session.access_token}` };
+      let body;
+      if (opts.json !== undefined) { headers["Content-Type"] = "application/json"; body = JSON.stringify(opts.json); }
+      const res = await fetch(path, { method: opts.method || (body ? "POST" : "GET"), headers, body });
+      if (res.status === 401) { await sb.auth.signOut(); location.replace("/signin"); throw new Error("Please sign in again"); }
+      if (!res.ok) throw new Error(await apiError(res, "Something went wrong. Please try again."));
+      return res.json();
+    }
+
+    // ---------- auth ----------
+    const AUTH_MODES = {
+      signin: { title: "Sign in", sub: "Welcome back.", submit: "Sign in", password: true, google: true, forgot: true,
+                foot: `New here? <a href="/signup">Create an account</a>` },
+      signup: { title: "Create your account", sub: "Start interviewing candidates in a few minutes.", submit: "Create account",
+                password: true, google: true, forgot: false, foot: `Already have an account? <a href="/signin">Sign in</a>` },
+      forgot: { title: "Reset your password", sub: "We'll email you a link to choose a new one.", submit: "Send reset link",
+                password: false, google: false, forgot: false, foot: `<button type="button" class="btn-link" onclick="setMode('signin')">Back to sign in</button>` },
+      reset:  { title: "Choose a new password", sub: "Use at least 8 characters.", submit: "Update password",
+                password: true, email: false, google: false, forgot: false, foot: "" },
+    };
+
+    function setMode(mode) {
+      authMode = mode;
+      const m = AUTH_MODES[mode];
+      $("auth-title").textContent = m.title;
+      $("auth-sub").textContent = m.sub;
+      if (joinInfo && mode === "signup") {
+        $("auth-title").textContent = `Join ${joinInfo.company}`;
+        $("auth-sub").textContent = `You were invited as ${joinInfo.email}. Create an account to join the team.`;
+      } else if (joinInfo && mode === "signin") {
+        $("auth-sub").textContent = `Sign in as ${joinInfo.email} to join ${joinInfo.company}.`;
+      }
+      $("auth-submit").textContent = m.submit;
+      $("auth-foot").innerHTML = m.foot;
+      $("google-block").classList.toggle("hidden", !(m.google && cfg && cfg.google));
+      $("email-field").classList.toggle("hidden", m.email === false);
+      $("password-field").classList.toggle("hidden", !m.password);
+      $("forgot-link").classList.toggle("hidden", !m.forgot);
+      $("auth-password").autocomplete = mode === "signin" ? "current-password" : "new-password";
+      $("auth-password").placeholder = mode === "signin" ? "" : "At least 8 characters";
+      $("auth-submit").disabled = false;
+      showError("auth-error", "");
+      showInfo("");
+      showView("view-auth");
+    }
+
+    function friendlyAuthError(error) {
+      const msg = (error && error.message) || "Something went wrong.";
+      if (/invalid login credentials/i.test(msg)) return "Wrong email or password.";
+      if (/email not confirmed/i.test(msg)) return "Please confirm your email first. Check your inbox for the link we sent.";
+      if (/rate limit/i.test(msg)) return "Too many attempts. Please wait a few minutes and try again.";
+      return msg;
+    }
+
+    async function submitAuth(event) {
+      event.preventDefault();
+      showError("auth-error", ""); showInfo("");
+      const email = $("auth-email").value.trim();
+      const password = $("auth-password").value;
+      const m = AUTH_MODES[authMode];
+      if (m.email !== false && !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showError("auth-error", "Please enter a valid email address.");
+      if (m.password && authMode !== "signin" && password.length < 8) return showError("auth-error", "Password must be at least 8 characters.");
+      if (m.password && !password) return showError("auth-error", "Please enter your password.");
+
+      const btn = $("auth-submit");
+      btn.disabled = true;
+      try {
+        if (authMode === "signin") {
+          const { error } = await sb.auth.signInWithPassword({ email, password });
+          if (error) throw error;
+          location.href = "/app";
+        } else if (authMode === "signup") {
+          const { data, error } = await sb.auth.signUp({ email, password, options: { emailRedirectTo: location.origin + "/app" } });
+          if (error) throw error;
+          if (data.session) { location.href = "/app"; return; }
+          showInfo(`We sent a confirmation link to ${email}. Open it to finish creating your account.`);
+        } else if (authMode === "forgot") {
+          const { error } = await sb.auth.resetPasswordForEmail(email, { redirectTo: location.origin + "/reset-password" });
+          if (error) throw error;
+          showInfo(`If an account exists for ${email}, a reset link is on its way.`);
+        } else if (authMode === "reset") {
+          const { error } = await sb.auth.updateUser({ password });
+          if (error) throw error;
+          location.href = "/app";
+        }
+      } catch (e) {
+        showError("auth-error", friendlyAuthError(e));
+      } finally {
+        btn.disabled = false;
+      }
+    }
+
+    async function googleSignIn() {
+      const { error } = await sb.auth.signInWithOAuth({ provider: "google", options: { redirectTo: location.origin + "/app" } });
+      if (error) showError("auth-error", friendlyAuthError(error));
+    }
+
+    async function signOut() {
+      await sb.auth.signOut();
+      location.href = "/";
+    }
+
+    // ---------- workspace setup ----------
+    async function showSetup() {
+      const teamToken = storageGet("teamToken");
+      joinInfo = null;
+      if (teamToken) {
+        const res = await fetch(`/api/v1/team-invite/${encodeURIComponent(teamToken)}`).catch(() => null);
+        const info = res && res.ok ? await res.json() : null;
+        if (info && info.state === "open") joinInfo = info;
+        else storageDel("teamToken");
+      }
+      $("setup-title").textContent = joinInfo ? `Join ${joinInfo.company}` : "Set up your workspace";
+      $("setup-sub").textContent = joinInfo ? "Add your name and you're in." : "Tell us who you are and where you hire.";
+      $("company-field").classList.toggle("hidden", !!joinInfo);
+      $("setup-email").textContent = me.email;
+      showView("view-setup");
+    }
+
+    async function submitSetup(event) {
+      event.preventDefault();
+      showError("setup-error", "");
+      const fullName = $("setup-name").value.trim();
+      const company = $("setup-company").value.trim();
+      if (!fullName) return showError("setup-error", "Please enter your name.");
+      if (!joinInfo && !company) return showError("setup-error", "Please enter your company name.");
+      $("setup-submit").disabled = true;
+      try {
+        await api("/api/v1/account/setup", { json: { full_name: fullName, company_name: company, team_token: joinInfo ? storageGet("teamToken") : "" } });
+        storageDel("teamToken");
+        await openApp();
+      } catch (e) {
+        showError("setup-error", e.message);
+      } finally {
+        $("setup-submit").disabled = false;
+      }
+    }
+
+    // ---------- app shell ----------
+    async function openApp() {
+      me = await api("/api/v1/me");
+      if (me.setup_required) return showSetup();
+      if (storageGet("teamToken")) { storageDel("teamToken"); toast("You already belong to a workspace"); }
+      $("nav-company").textContent = me.company.name || "";
+      $("nav-avatar").textContent = initials(me.full_name);
+      $("nav-avatar").title = `${me.full_name} (${me.email})`;
+      $("team-company").textContent = me.company.name || "Your team";
+      document.title = `${me.company.name} · AI Interviewer`;
+      await loadJobs();
+      showView("view-app");
+      switchTab(location.hash.slice(1) || "candidates");
+    }
+
+    document.querySelectorAll(".tab").forEach(t => t.addEventListener("click", () => switchTab(t.dataset.tab)));
+
+    function switchTab(tab) {
+      if (!["candidates", "jobs", "team"].includes(tab)) tab = "candidates";
+      document.querySelectorAll(".tab").forEach(t => t.classList.toggle("active", t.dataset.tab === tab));
+      ["candidates", "jobs", "team"].forEach(p => $(`pane-${p}`).classList.toggle("hidden", p !== tab));
+      history.replaceState(null, "", `#${tab}`);
+      if (tab === "candidates") loadRecruiterList();
+      if (tab === "jobs") { closeJob(); loadJobs().then(renderJobs); }
+      if (tab === "team") loadTeam();
+    }
+
+    // ---------- candidates ----------
+    async function loadRecruiterList() {
+      const params = new URLSearchParams();
+      if ($("filter-job").value) params.set("job_id", $("filter-job").value);
+      if ($("filter-status").value) params.set("status", $("filter-status").value);
+      try {
+        recruiterRows = (await api(`/api/v1/recruiter/interviews?${params}`)).interviews || [];
+      } catch (e) {
+        $("cand-list").innerHTML = `<div class="empty">${esc(e.message)}</div>`;
+        return;
+      }
+      renderStats();
+      renderRecruiterList();
+    }
+
+    function renderStats() {
+      const done = recruiterRows.filter(r => r.status === "Done");
+      const avg = done.length ? (done.reduce((s, r) => s + (r.score || 0), 0) / done.length).toFixed(1) : "–";
+      const recommended = recruiterRows.filter(r => r.recommendation === "Strong yes" || r.recommendation === "Yes").length;
+      $("stats").innerHTML = [
+        ["Candidates", recruiterRows.length], ["Completed", done.length], ["Average score", avg], ["Recommended", recommended],
+      ].map(([label, value]) => `<div class="stat"><div class="stat-label">${label}</div><div class="stat-value">${esc(value)}</div></div>`).join("");
+    }
+
+    function displayName(r) {
+      return r.candidate_name || (r.github_url ? "@" + r.github_url.split("/").pop() : "Unnamed candidate");
+    }
+
+    function renderRecruiterList() {
+      const term = $("search-input").value.trim().toLowerCase();
+      const rows = recruiterRows.filter(r => !term ||
+        [r.candidate_name, r.candidate_email, r.github_url].some(v => (v || "").toLowerCase().includes(term)));
+      const list = $("cand-list");
+      if (!rows.length) {
+        list.innerHTML = recruiterRows.length || term
+          ? `<div class="empty">No interviews match.</div>`
+          : `<div class="empty">No interviews yet.<br><button class="btn-link" onclick="switchTab('jobs')">Create a job and invite a candidate</button></div>`;
+        return;
+      }
+      list.innerHTML = rows.map(r => {
+        const name = displayName(r);
+        const score = r.status === "Done" ? `${esc(r.score)}<small> /10</small>` : `<small>–</small>`;
+        return `
+          <button type="button" class="row-item${r.id === selectedId ? " selected" : ""}" data-id="${esc(r.id)}">
+            <span class="avatar">${esc(initials(name))}</span>
+            <span class="row-main">
+              <span class="row-name">${esc(name)}</span>
+              <span class="row-meta">${esc(r.role || "")} · ${esc(formatDate(r.created_at))}</span>
+            </span>
+            <span class="row-right">
+              <span class="row-score">${score}</span>
+              <span class="badge ${esc(r.status)}">${esc(STATUS_LABELS[r.status] || r.status)}</span>
+            </span>
+          </button>`;
+      }).join("");
+      list.querySelectorAll(".row-item").forEach(el => el.onclick = () => inspectCandidate(el.dataset.id));
+    }
+
+    function renderTranscript(container, transcript) {
+      container.innerHTML = "";
+      if (!transcript || !transcript.length) {
+        container.innerHTML = `<p class="note">No messages were recorded for this interview.</p>`;
+        return;
+      }
+      transcript.forEach(m => {
+        const isAi = m.type === "Assistant";
+        const row = document.createElement("div");
+        row.className = `line ${isAi ? "ai" : "user"}`;
+        row.innerHTML = `<div class="speaker">${isAi ? "Interviewer" : "Candidate"}</div><div class="utter"></div>`;
+        row.querySelector(".utter").textContent = m.content;
+        container.appendChild(row);
+      });
+    }
+
+    function rubricScoresHtml(scores) {
+      if (!scores || !scores.length) return "";
+      const total = scores.reduce((s, c) => s + (c.weight || 0), 0) || 1;
+      return `<div class="sec-label">Rubric scores</div><div class="rb" style="margin-top:0">${scores.map(c => `
+        <div class="rb-row">
+          <div class="rb-name">${esc(c.name)}<span>${Math.round(100 * (c.weight || 0) / total)}%</span></div>
+          <div class="rb-score">${esc(c.score)}<span class="muted" style="font-weight:400"> /10</span></div>
+          <div class="rb-track"><div class="rb-fill" style="width:${Math.max(0, Math.min(10, c.score)) * 10}%; background:${scoreColor(c.score)}"></div></div>
+          <div class="rb-evidence">${esc(c.evidence)}</div>
+        </div>`).join("")}</div>`;
+    }
+
+    async function inspectCandidate(id) {
+      selectedId = id;
+      document.querySelectorAll(".row-item").forEach(c => c.classList.toggle("selected", c.dataset.id === id));
+      const detail = $("cand-detail");
+      detail.innerHTML = `<div class="empty"><div class="spinner" style="margin:0 auto 12px"></div>Loading candidate…</div>`;
+      let d;
+      try { d = await api(`/api/v1/recruiter/interviews/${encodeURIComponent(id)}`); }
+      catch (e) { detail.innerHTML = `<div class="alert">${esc(e.message)}</div>`; return; }
+
+      const name = displayName(d);
+      const github = safeUrl(d.github_url), resume = safeUrl(d.resume_url), recording = safeUrl(d.recording_url);
+      const ticks = (items, cls = "") => items && items.length
+        ? `<ul class="ticks ${cls}">${items.map(i => `<li>${esc(i)}</li>`).join("")}</ul>`
+        : `<p class="note">None noted.</p>`;
+      const media = recording
+        ? `<video class="player" controls preload="metadata" src="${esc(recording)}"></video>`
+        : `<div class="no-media">No recording saved for this interview.</div>`;
+
+      detail.innerHTML = `
+        <div class="detail-head">
+          <div class="detail-id">
+            <span class="avatar">${esc(initials(name))}</span>
+            <div style="min-width:0;">
+              <div class="detail-name">${esc(name)}</div>
+              <div class="row-meta">${esc(d.candidate_email || "")}${d.role ? " · " + esc(d.role) : ""}</div>
+            </div>
+          </div>
+          <div class="mini-score">
+            <div><b>${d.status === "Done" ? esc(d.score) : "–"}</b><span> /10</span></div>
+            ${d.recommendation ? `<span class="badge rec-${esc(slug(d.recommendation))}">${esc(d.recommendation)}</span>` : ""}
+          </div>
+        </div>
+        <div class="detail-links">
+          <span class="badge ${esc(d.status)}">${esc(STATUS_LABELS[d.status] || d.status)}</span>
+          ${github ? `<a class="pill-link" href="${esc(github)}" target="_blank" rel="noopener">GitHub ${EXTERNAL_ICON}</a>` : ""}
+          ${resume ? `<a class="pill-link" href="${esc(resume)}" target="_blank" rel="noopener">Resume ${EXTERNAL_ICON}</a>` : ""}
+          <span class="row-meta">${esc(formatDate(d.created_at))}</span>
+        </div>
+        ${media}
+        ${d.error ? `<div class="alert" style="margin-top:16px;">${esc(d.error)}</div>` : ""}
+        ${rubricScoresHtml(d.rubric_scores)}
+        <div class="sec-label">Summary</div>
+        <p class="feedback">${esc(d.feedback || (d.status === "Done" ? "No feedback." : "Not evaluated yet."))}</p>
+        <div class="two-col">
+          <div class="list-box"><h4>Strengths</h4>${ticks(d.strengths)}</div>
+          <div class="list-box"><h4>Weaknesses</h4>${ticks(d.weaknesses, "neg")}</div>
+        </div>
+        <div class="sec-label">Transcript</div>
+        <div id="recruiter-transcript" class="transcript"></div>
+      `;
+      renderTranscript($("recruiter-transcript"), d.transcript);
+    }
+
+    // ---------- jobs ----------
+    async function loadJobs() {
+      const d = await api("/api/v1/jobs");
+      jobs = d.jobs || [];
+      defaultRubric = d.default_rubric || [];
+      const current = $("filter-job").value;
+      $("filter-job").innerHTML = `<option value="">All jobs</option>` +
+        jobs.map(j => `<option value="${esc(j.id)}">${esc(j.title)}</option>`).join("");
+      $("filter-job").value = jobs.some(j => j.id === current) ? current : "";
+    }
+
+    function weightPct(rubric, c) {
+      const total = rubric.reduce((s, x) => s + (x.weight || 0), 0) || 1;
+      return Math.round(100 * (c.weight || 0) / total);
+    }
+
+    function renderJobs() {
+      const grid = $("job-grid");
+      if (!jobs.length) {
+        grid.innerHTML = `
+          <div class="panel" style="grid-column:1/-1; text-align:center; padding:56px 24px;">
+            <h3 style="font-size:21px; font-weight:600; letter-spacing:-0.025em;">Create your first job</h3>
+            <p class="note" style="margin:8px auto 20px; max-width:420px;">A job holds the rubric your team scores against. Then you can invite candidates to it.</p>
+            <button class="btn" onclick="openJobModal()">New job</button>
+          </div>`;
+        return;
+      }
+      grid.innerHTML = jobs.map(j => `
+        <button type="button" class="job-card" data-id="${esc(j.id)}">
+          <h3>${esc(j.title)}</h3>
+          <div class="job-meta"><span><b>${esc(j.interviews)}</b> interviews</span><span><b>${esc(j.completed)}</b> completed</span></div>
+          <div class="crit-chips">${(j.rubric || []).map(c => `<span class="crit-chip">${esc(c.name)} · ${weightPct(j.rubric, c)}%</span>`).join("")}</div>
+        </button>`).join("");
+      grid.querySelectorAll(".job-card").forEach(el => el.onclick = () => openJob(el.dataset.id));
+    }
+
+    function closeJob() {
+      currentJobId = null;
+      $("job-detail").classList.add("hidden");
+      $("jobs-index").classList.remove("hidden");
+    }
+
+    function openJob(id) {
+      const job = jobs.find(j => j.id === id);
+      if (!job) return closeJob();
+      currentJobId = id;
+      $("jobs-index").classList.add("hidden");
+      const detail = $("job-detail");
+      detail.classList.remove("hidden");
+      detail.innerHTML = `
+        <button class="back" onclick="closeJob(); renderJobs();">
+          <svg class="icon" viewBox="0 0 24 24" style="width:16px;height:16px"><path d="m15 6-6 6 6 6"/></svg>All jobs
+        </button>
+        <header class="page-head">
+          <div><p class="eyebrow">Job</p><h2>${esc(job.title)}</h2></div>
+          <button class="btn btn-secondary" onclick="openJobModal('${esc(job.id)}')">Edit job and rubric</button>
+        </header>
+        <div class="job-layout">
+          <div class="panel">
+            <div class="panel-head"><h3>Evaluation rubric</h3><span class="note">Scores every interview</span></div>
+            <div class="rubric-view">${(job.rubric || []).map(c => `
+              <div class="rv"><span class="rv-name">${esc(c.name)}</span><span class="rv-weight">${weightPct(job.rubric, c)}%</span>
+              <span class="rv-desc">${esc(c.description || "No description.")}</span></div>`).join("")}
+            </div>
+            ${job.focus ? `<div class="focus-text"><b style="color:var(--text)">Notes for the interviewer</b>\n${esc(job.focus)}</div>` : ""}
+          </div>
+          <div>
+            <div class="panel">
+              <div class="panel-head"><h3>Invite a candidate</h3></div>
+              <form class="invite-form" onsubmit="createInvite(event)" novalidate>
+                <div class="field"><label class="label" for="inv-name">Name</label><input id="inv-name" class="input" type="text" maxlength="120" /></div>
+                <div class="field"><label class="label" for="inv-email">Email</label><input id="inv-email" class="input" type="email" maxlength="200" /></div>
+                <button class="btn" type="submit" style="height:46px;">Create link</button>
+              </form>
+              <div id="invite-error" class="alert hidden" style="margin-top:12px;"></div>
+              <div id="invite-result"></div>
+            </div>
+            <div class="panel">
+              <div class="panel-head"><h3>Invites</h3><span id="invite-count" class="note"></span></div>
+              <div id="inv-list" class="inv-list"><p class="note">Loading…</p></div>
+            </div>
+          </div>
+        </div>`;
+      window.scrollTo(0, 0);
+      loadInvites();
+    }
+
+    function linkBox(url, email, subject, body) {
+      const mailto = `mailto:${encodeURIComponent(email)}?subject=${encodeURIComponent(subject)}&body=${encodeURIComponent(body)}`;
+      return `
+        <div class="link-box">
+          <p>Link ready. It works once and expires in 7 days.</p>
+          <div class="link-line">
+            <code>${esc(url)}</code>
+            <button type="button" class="btn btn-sm" data-copy="${esc(url)}">Copy</button>
+            <a class="btn btn-secondary btn-sm" href="${esc(mailto)}">Email</a>
+          </div>
+        </div>`;
+    }
+
+    function wireCopyButtons(root) {
+      root.querySelectorAll("[data-copy]").forEach(b => b.onclick = () => copyText(b.dataset.copy));
+    }
+
+    async function createInvite(event) {
+      event.preventDefault();
+      showError("invite-error", "");
+      const name = $("inv-name").value.trim(), email = $("inv-email").value.trim();
+      if (!name) return showError("invite-error", "Please enter the candidate's name.");
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showError("invite-error", "Please enter a valid email address.");
+      try {
+        const inv = await api("/api/v1/invites", { json: { job_id: currentJobId, candidate_name: name, candidate_email: email } });
+        const url = `${location.origin}/i/${inv.token}`;
+        const body = `Hi ${name},\n\nThanks for applying for the ${inv.job_title} role at ${me.company.name}. The next step is a short voice interview you can do at any time in the next 7 days:\n\n${url}\n\nYou'll need a quiet place and a microphone. It takes about 15 minutes.\n\nBest,\n${me.full_name}`;
+        $("invite-result").innerHTML = linkBox(url, email, `Your interview for ${inv.job_title} at ${me.company.name}`, body);
+        wireCopyButtons($("invite-result"));
+        $("inv-name").value = ""; $("inv-email").value = "";
+        loadInvites();
+      } catch (e) {
+        showError("invite-error", e.message);
+      }
+    }
+
+    async function loadInvites() {
+      const jobId = currentJobId;
+      let invites;
+      try { invites = (await api(`/api/v1/invites?job_id=${encodeURIComponent(jobId)}`)).invites || []; }
+      catch (e) { $("inv-list").innerHTML = `<div class="alert">${esc(e.message)}</div>`; return; }
+      if (jobId !== currentJobId) return;
+      $("invite-count").textContent = invites.length ? `${invites.length} sent` : "";
+      if (!invites.length) { $("inv-list").innerHTML = `<p class="note">No invites yet. Create a link above.</p>`; return; }
+      $("inv-list").innerHTML = invites.map(i => {
+        const live = ["Pending", "Opened", "In progress"].includes(i.state);
+        return `
+          <div class="inv-row">
+            <div style="min-width:0;"><div class="row-name">${esc(i.candidate_name)}</div><div class="row-meta">${esc(i.candidate_email)} · ${esc(formatDate(i.created_at))}</div></div>
+            <span class="badge inv-${esc(slug(i.state))}">${esc(i.state)}</span>
+            <div class="inv-actions">
+              ${live ? `<button class="btn-link" style="font-size:13px" data-copy="${esc(location.origin + "/i/" + i.token)}">Copy link</button>` : ""}
+              ${i.state === "Pending" ? `<button class="btn-danger-text" data-revoke="${esc(i.id)}">Revoke</button>` : ""}
+              ${i.interview_id ? `<button class="btn-link" style="font-size:13px" data-view="${esc(i.interview_id)}">View</button>` : ""}
+            </div>
+          </div>`;
+      }).join("");
+      const list = $("inv-list");
+      wireCopyButtons(list);
+      list.querySelectorAll("[data-revoke]").forEach(b => b.onclick = () => revokeInvite(b.dataset.revoke));
+      list.querySelectorAll("[data-view]").forEach(b => b.onclick = () => { switchTab("candidates"); inspectCandidate(b.dataset.view); });
+    }
+
+    async function revokeInvite(id) {
+      if (!confirm("Revoke this invite? The candidate's link will stop working.")) return;
+      try { await api(`/api/v1/invites/${encodeURIComponent(id)}/revoke`, { method: "POST" }); toast("Invite revoked"); loadInvites(); }
+      catch (e) { toast(e.message); }
+    }
+
+    // ---------- job + rubric editor ----------
+    function critRow(c = { name: "", description: "", weight: 10 }) {
+      const row = document.createElement("div");
+      row.className = "crit-row";
+      row.innerHTML = `
+        <input class="input c-name" maxlength="60" placeholder="Criterion, e.g. System design" aria-label="Criterion name" />
+        <div class="weight-wrap"><input class="input c-weight" type="number" min="1" max="100" aria-label="Weight" /><span>%</span></div>
+        <button type="button" class="icon-btn" aria-label="Remove criterion">${X_ICON}</button>
+        <textarea class="textarea c-desc" maxlength="400" placeholder="What does a strong answer look like?" aria-label="Criterion description"></textarea>`;
+      row.querySelector(".c-name").value = c.name || "";
+      row.querySelector(".c-weight").value = c.weight || 10;
+      row.querySelector(".c-desc").value = c.description || "";
+      row.querySelector(".c-weight").oninput = updateWeightTotal;
+      row.querySelector(".icon-btn").onclick = () => { row.remove(); updateWeightTotal(); };
+      return row;
+    }
+
+    function addCrit() {
+      if ($("crit-list").children.length >= MAX_CRITERIA) return showError("job-error", `A rubric can have up to ${MAX_CRITERIA} criteria.`);
+      $("crit-list").appendChild(critRow());
+      updateWeightTotal();
+      $("crit-list").lastElementChild.querySelector(".c-name").focus();
+    }
+
+    function readRubric() {
+      return [...$("crit-list").children].map(r => ({
+        name: r.querySelector(".c-name").value.trim(),
+        description: r.querySelector(".c-desc").value.trim(),
+        weight: parseInt(r.querySelector(".c-weight").value, 10) || 0,
+      }));
+    }
+
+    function updateWeightTotal() {
+      const total = readRubric().reduce((s, c) => s + c.weight, 0);
+      const el = $("weight-total");
+      el.textContent = `Total ${total}%`;
+      el.style.color = total === 100 ? "var(--good)" : "var(--bad)";
+    }
+
+    function openJobModal(jobId) {
+      editingJobId = jobId || null;
+      const job = jobs.find(j => j.id === jobId);
+      $("job-modal-title").textContent = job ? "Edit job" : "New job";
+      $("job-save").textContent = job ? "Save changes" : "Create job";
+      $("job-title").value = job ? job.title : "";
+      $("job-focus").value = job ? (job.focus || "") : "";
+      $("crit-list").innerHTML = "";
+      (job ? job.rubric : defaultRubric).forEach(c => $("crit-list").appendChild(critRow(c)));
+      $("role-suggestions").innerHTML = roleSuggestions.map(r => `<option value="${esc(r)}"></option>`).join("");
+      showError("job-error", job && job.interviews ? "Changes apply to new interviews. Past interviews keep the rubric they were scored with." : "");
+      if (job && job.interviews) { $("job-error").className = "info"; } else { $("job-error").className = "alert hidden"; }
+      updateWeightTotal();
+      $("job-modal").showModal();
+    }
+
+    function closeJobModal() { $("job-modal").close(); }
+
+    async function saveJob(event) {
+      event.preventDefault();
+      $("job-error").className = "alert hidden";
+      const title = $("job-title").value.trim();
+      const rubric = readRubric();
+      const total = rubric.reduce((s, c) => s + c.weight, 0);
+      const fail = msg => { $("job-error").className = "alert"; $("job-error").textContent = msg; };
+      if (!title) return fail("Please enter a job title.");
+      if (!rubric.length) return fail("Add at least one rubric criterion.");
+      if (rubric.some(c => !c.name)) return fail("Every criterion needs a name.");
+      if (new Set(rubric.map(c => c.name.toLowerCase())).size !== rubric.length) return fail("Criterion names must be different.");
+      if (rubric.some(c => c.weight < 1 || c.weight > 100)) return fail("Each weight must be between 1 and 100.");
+      if (total !== 100) return fail(`Weights must add up to 100%. They add up to ${total}% now.`);
+
+      $("job-save").disabled = true;
+      try {
+        const payload = { title, focus: $("job-focus").value.trim(), rubric };
+        const saved = editingJobId
+          ? await api(`/api/v1/jobs/${encodeURIComponent(editingJobId)}`, { method: "PUT", json: payload })
+          : await api("/api/v1/jobs", { json: payload });
+        closeJobModal();
+        toast(editingJobId ? "Job updated" : "Job created");
+        await loadJobs();
+        openJob(saved.id);
+      } catch (e) {
+        fail(e.message);
+      } finally {
+        $("job-save").disabled = false;
+      }
+    }
+
+    // ---------- team ----------
+    async function loadTeam() {
+      let d;
+      try { d = await api("/api/v1/team"); }
+      catch (e) { $("member-list").innerHTML = `<div class="alert">${esc(e.message)}</div>`; return; }
+      const owner = me.role === "owner";
+      $("team-invite-box").classList.toggle("hidden", !owner);
+      $("team-member-note").classList.toggle("hidden", owner);
+      $("member-list").innerHTML = d.members.map(m => `
+        <div class="inv-row" style="grid-template-columns:38px minmax(0,1fr) auto;">
+          <span class="avatar">${esc(initials(m.full_name))}</span>
+          <div style="min-width:0;"><div class="row-name">${esc(m.full_name)}${m.user_id === me.user_id ? ' <span class="muted" style="font-weight:400">(you)</span>' : ""}</div><div class="row-meta">${esc(m.email)}</div></div>
+          <span class="badge">${m.role === "owner" ? "Owner" : "Member"}</span>
+        </div>`).join("");
+      $("team-pending").innerHTML = d.invites.length ? d.invites.map(i => `
+        <div class="inv-row">
+          <div style="min-width:0;"><div class="row-name">${esc(i.email)}</div><div class="row-meta">Sent ${esc(formatDate(i.created_at))}</div></div>
+          <span class="badge inv-pending">Pending</span>
+          <div class="inv-actions"><button class="btn-link" style="font-size:13px" data-copy="${esc(location.origin + "/join/" + i.token)}">Copy link</button></div>
+        </div>`).join("") : `<p class="note">No pending invites.</p>`;
+      wireCopyButtons($("team-pending"));
+    }
+
+    async function createTeamInvite(event) {
+      event.preventDefault();
+      showError("team-error", "");
+      const email = $("team-email").value.trim();
+      if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(email)) return showError("team-error", "Please enter a valid email address.");
+      try {
+        const inv = await api("/api/v1/team/invites", { json: { email } });
+        const url = `${location.origin}/join/${inv.token}`;
+        const body = `Hi,\n\n${me.full_name} invited you to join ${me.company.name} on AI Interviewer to review candidate interviews.\n\nCreate your account with this email address here (the link expires in 7 days):\n${url}`;
+        $("team-invite-result").innerHTML = linkBox(url, email, `Join ${me.company.name} on AI Interviewer`, body);
+        wireCopyButtons($("team-invite-result"));
+        $("team-email").value = "";
+        loadTeam();
+      } catch (e) {
+        showError("team-error", e.message);
+      }
+    }
+
+    // ---------- boot ----------
+    async function boot() {
+      let res;
+      try { res = await fetch("/api/v1/config"); } catch (_) { res = null; }
+      if (!res || !res.ok || !window.supabase) {
+        setMode("signin");
+        $("auth-submit").disabled = true;
+        return showError("auth-error", res && !res.ok ? await apiError(res, "Sign-in is not configured.") : "Could not load sign-in. Check your connection and reload.");
+      }
+      cfg = await res.json();
+      sb = window.supabase.createClient(cfg.supabase_url, cfg.supabase_key);
+      fetch("/api/v1/roles").then(r => r.json()).then(d => { roleSuggestions = d.roles || []; }).catch(() => {});
+
+      if (JOIN_TOKEN) storageSet("teamToken", JOIN_TOKEN);
+      const { data } = await sb.auth.getSession();
+      const session = data.session;
+
+      if (PATH === "/reset-password") {
+        if (!session) { setMode("forgot"); return showError("auth-error", "That reset link is invalid or has expired. Request a new one."); }
+        return setMode("reset");
+      }
+      if (PATH === "/app") {
+        if (!session) return location.replace("/signin");
+        try { await openApp(); }
+        catch (e) { setMode("signin"); showError("auth-error", e.message); }
+        return;
+      }
+      if (session) return location.replace("/app");
+
+      if (JOIN_TOKEN) {
+        const r = await fetch(`/api/v1/team-invite/${encodeURIComponent(JOIN_TOKEN)}`).catch(() => null);
+        const info = r && r.ok ? await r.json() : null;
+        if (info && info.state === "open") {
+          joinInfo = info;
+          $("auth-email").value = info.email;
+          return setMode("signup");
+        }
+        storageDel("teamToken");
+        setMode("signin");
+        return showError("auth-error", "This team invite has expired or was already used. Ask your workspace owner for a new one.");
+      }
+      setMode(PATH === "/signup" ? "signup" : "signin");
+    }
+
+    boot();
+  </script>
+</body>
+</html>

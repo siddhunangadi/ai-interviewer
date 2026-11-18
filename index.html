@@ -1,0 +1,604 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <meta name="color-scheme" content="light dark" />
+  <title>AI Interviewer</title>
+  <meta name="description" content="AI voice interviews that read the resume first and score candidates against your own rubric." />
+  <link rel="icon" href="data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' viewBox='0 0 24 24'%3E%3Crect width='24' height='24' rx='7' fill='%231d1d1f'/%3E%3Cg fill='%23fff'%3E%3Crect x='5.75' y='10' width='2' height='4' rx='1'/%3E%3Crect x='9.25' y='7' width='2' height='10' rx='1'/%3E%3Crect x='12.75' y='4.5' width='2' height='15' rx='1'/%3E%3Crect x='16.25' y='8.5' width='2' height='7' rx='1'/%3E%3C/g%3E%3C/svg%3E" />
+  <link rel="preconnect" href="https://fonts.googleapis.com" />
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin />
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&display=swap" rel="stylesheet" />
+  <link rel="stylesheet" href="/styles.css" />
+  <style>
+    body[data-page="candidate"] #nav-public { display: none; }
+  </style>
+</head>
+<body data-view="view-home" data-page="home">
+
+  <nav class="nav">
+    <div class="nav-inner">
+      <a class="brand" href="/">
+        <svg class="logo" width="24" height="24" viewBox="0 0 24 24" aria-hidden="true"><rect class="lb" width="24" height="24" rx="7"/><g class="lf"><rect x="5.75" y="10" width="2" height="4" rx="1"/><rect x="9.25" y="7" width="2" height="10" rx="1"/><rect x="12.75" y="4.5" width="2" height="15" rx="1"/><rect x="16.25" y="8.5" width="2" height="7" rx="1"/></g></svg>
+        AI Interviewer
+      </a>
+      <div id="nav-public" class="nav-actions">
+        <a class="nav-link" href="/signin">Sign in</a>
+        <a class="btn btn-sm" href="/signup">Get started</a>
+      </div>
+    </div>
+  </nav>
+
+  <!-- ================= Homepage ================= -->
+  <main id="view-home">
+    <section class="home-hero">
+      <p class="eyebrow"><span class="live-dot"></span>AI voice interviews for engineering teams</p>
+      <h1>Interviews that have <span class="soft">actually read the resume.</span></h1>
+      <p class="lede">Send a candidate one link. They talk to an AI interviewer about the projects they really built, and your team gets the recording, the transcript and a score against your own rubric.</p>
+      <div class="cta-row">
+        <a class="btn" href="/signup">Get started</a>
+        <a class="btn btn-secondary" href="/signin">Sign in</a>
+      </div>
+    </section>
+
+    <section class="showcase" aria-label="Product preview">
+      <div class="showcase-frame">
+        <div class="mock">
+          <div class="mock-head">
+            <span class="avatar">JD</span>
+            <div>
+              <div class="mock-title">Jane Doe</div>
+              <div class="mock-sub">Backend Engineer</div>
+            </div>
+            <div class="mock-score">8<small> /10</small></div>
+          </div>
+          <div style="margin-top:12px; display:flex; gap:8px;">
+            <span class="badge Done">Completed</span>
+            <span class="badge rec-strong-yes">Strong yes</span>
+          </div>
+          <div class="rb">
+            <div class="rb-row"><div class="rb-name">Technical depth<span>35%</span></div><div class="rb-score">9</div><div class="rb-track"><div class="rb-fill" style="width:90%"></div></div></div>
+            <div class="rb-row"><div class="rb-name">Problem solving<span>30%</span></div><div class="rb-score">8</div><div class="rb-track"><div class="rb-fill" style="width:80%"></div></div></div>
+            <div class="rb-row"><div class="rb-name">Communication<span>20%</span></div><div class="rb-score">7</div><div class="rb-track"><div class="rb-fill" style="width:70%"></div></div></div>
+            <div class="rb-row"><div class="rb-name">Ownership<span>15%</span></div><div class="rb-score">8</div><div class="rb-track"><div class="rb-fill" style="width:80%"></div></div><div class="rb-evidence">Described choosing row-level locks to stop double bookings and why.</div></div>
+          </div>
+        </div>
+        <div class="mock mock-room">
+          <div class="ai-visual" style="width:200px"><div class="ai-orb" style="--level:0.35"></div></div>
+          <p class="mock-quote">“Walk me through how your booking API stops two people reserving the same room.”</p>
+          <div class="tile-label"><span class="name">Interviewer</span><span class="sub">Speaking</span></div>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <p class="eyebrow">Why teams use it</p>
+        <h2>A first-round interview, without the scheduling.</h2>
+      </div>
+      <div class="features">
+        <div class="feature">
+          <div class="feature-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M9 13h6M9 17h4"/></svg></div>
+          <h3>Reads the resume first</h3>
+          <p>Finds the candidate's GitHub in their resume and asks about the projects they actually built.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon"><svg class="icon" viewBox="0 0 24 24"><path d="M4 20V10M10 20V4M16 20v-7M22 20H2"/></svg></div>
+          <h3>Scored on your rubric</h3>
+          <p>Your HR and engineering leads set the criteria and weights. Every score comes with evidence from the transcript.</p>
+        </div>
+        <div class="feature">
+          <div class="feature-icon"><svg class="icon" viewBox="0 0 24 24"><rect x="3" y="5" width="18" height="14" rx="3"/><path d="m10 9 5 3-5 3z"/></svg></div>
+          <h3>Everything in one place</h3>
+          <p>Recording, transcript, resume and evaluation for every candidate, shared with your whole team.</p>
+        </div>
+      </div>
+    </section>
+
+    <section class="section">
+      <div class="section-head">
+        <p class="eyebrow">How it works</p>
+        <h2>From job opening to shortlist.</h2>
+      </div>
+      <ol class="flow">
+        <li><span class="step-num">01</span><span class="step-title">Create a job</span><span class="step-text">Write the rubric your team will score against.</span></li>
+        <li><span class="step-num">02</span><span class="step-title">Send an invite</span><span class="step-text">Each candidate gets a personal link. No account needed.</span></li>
+        <li><span class="step-num">03</span><span class="step-title">They talk it through</span><span class="step-text">A spoken interview about their own work, recorded.</span></li>
+        <li><span class="step-num">04</span><span class="step-title">Review the evidence</span><span class="step-text">Scores per criterion, with quotes, in your dashboard.</span></li>
+      </ol>
+    </section>
+
+    <section class="cta-band">
+      <div>
+        <h2>Run your first interview today.</h2>
+        <p>Create a workspace and send your first invite in a few minutes.</p>
+        <a class="btn" href="/signup">Get started</a>
+      </div>
+    </section>
+    <p class="candidate-note">Got an interview invitation? Open the link from your email. Candidates don't need an account.</p>
+
+    <footer class="site-foot">
+      <div><span>Resumes and recordings are stored privately and shared only with the hiring team.</span><span>AI Interviewer</span></div>
+    </footer>
+  </main>
+
+  <!-- ================= Candidate: loading & states ================= -->
+  <main id="view-loading" class="state-wrap hidden">
+    <div class="spinner"></div>
+  </main>
+
+  <main id="view-state" class="state-wrap hidden">
+    <div class="card state-card">
+      <div id="state-icon" class="state-icon"></div>
+      <h2 id="state-title"></h2>
+      <p id="state-text"></p>
+      <p id="state-note" class="note hidden"></p>
+      <div id="state-error" class="alert hidden" style="margin-top:8px;"></div>
+      <button id="state-btn" class="btn hidden"></button>
+    </div>
+  </main>
+
+  <!-- ================= Candidate: form ================= -->
+  <main id="view-form" class="hidden">
+    <section class="landing hero">
+      <div class="hero-copy">
+        <p class="eyebrow"><span class="live-dot"></span><span id="inv-company">Company</span> · Interview invitation</p>
+        <h1>Your interview for <span id="inv-job" class="soft">the role</span></h1>
+        <p class="lede">A short spoken interview with an AI interviewer. It has read your resume and will ask about your own projects, one question at a time.</p>
+        <ol class="steps">
+          <li><span class="step-num">01</span><span class="step-title">Upload your resume</span><span class="step-text">We find your GitHub in it and look at your recent repositories.</span></li>
+          <li><span class="step-num">02</span><span class="step-title">Talk it through</span><span class="step-text">Answer out loud, in your own words. Camera optional.</span></li>
+          <li><span class="step-num">03</span><span class="step-title">Submit</span><span class="step-text">Your recording and transcript go to <span id="inv-company-2">the hiring team</span>.</span></li>
+        </ol>
+      </div>
+
+      <form id="setup-form" class="card form-card" onsubmit="startInterview(event)" novalidate>
+        <div>
+          <h2>Before you start</h2>
+          <p class="form-sub">Find a quiet place. We'll ask for your microphone next.</p>
+        </div>
+
+        <div class="row2">
+          <div class="field">
+            <label class="label" for="name-input">Full name</label>
+            <input id="name-input" class="input" type="text" maxlength="120" required autocomplete="name" />
+          </div>
+          <div class="field">
+            <span class="label">Email</span>
+            <div id="email-view" class="readonly"></div>
+          </div>
+        </div>
+
+        <div class="field">
+          <span class="label">Resume</span>
+          <label id="drop-zone" class="drop" for="resume-file">
+            <span class="drop-icon">
+              <svg class="icon ic-doc" viewBox="0 0 24 24"><path d="M14 3H7a2 2 0 0 0-2 2v14a2 2 0 0 0 2 2h10a2 2 0 0 0 2-2V8z"/><path d="M14 3v5h5"/><path d="M12 17v-6"/><path d="m9.5 13.5 2.5-2.5 2.5 2.5"/></svg>
+              <svg class="icon ic-check" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>
+            </span>
+            <span class="drop-text">
+              <span id="file-title" class="drop-title">Upload your resume</span><br />
+              <span id="file-sub" class="drop-sub">PDF or DOCX, up to 5 MB</span>
+            </span>
+            <input id="resume-file" type="file" accept=".pdf,.docx" class="hidden" onchange="updateFileLabel()" />
+          </label>
+        </div>
+
+        <div class="field">
+          <label class="label" for="github-input">GitHub <span class="opt">optional, we usually find it in your resume</span></label>
+          <input id="github-input" class="input" type="text" maxlength="200" placeholder="github.com/username" />
+        </div>
+
+        <label class="check">
+          <input id="consent-check" type="checkbox" />
+          <span>I agree that this interview will be recorded (audio, and video if I allow the camera) and shared with <span id="inv-company-3">the hiring team</span> along with my resume.</span>
+        </label>
+
+        <div id="form-error" class="alert hidden" role="alert"></div>
+        <button id="start-btn" class="btn btn-lg" type="submit">
+          <span id="start-label">Start interview</span>
+          <svg class="icon" viewBox="0 0 24 24"><path d="M5 12h14"/><path d="m13 6 6 6-6 6"/></svg>
+        </button>
+        <p class="fineprint">You'll need a microphone. Works best in Chrome, Edge or Safari.</p>
+      </form>
+    </section>
+  </main>
+
+  <!-- ================= Candidate: live interview room ================= -->
+  <main id="view-interview" class="room hidden">
+    <header class="room-top">
+      <div class="room-brand">
+        <svg class="logo" width="22" height="22" viewBox="0 0 24 24" aria-hidden="true"><rect class="lb" width="24" height="24" rx="7"/><g class="lf"><rect x="5.75" y="10" width="2" height="4" rx="1"/><rect x="9.25" y="7" width="2" height="10" rx="1"/><rect x="12.75" y="4.5" width="2" height="15" rx="1"/><rect x="16.25" y="8.5" width="2" height="7" rx="1"/></g></svg>
+        AI Interviewer
+      </div>
+      <div id="live-role-label" class="room-role">Interview</div>
+      <div class="status"><span id="status-dot" class="dot"></span><span id="status-text">Connecting…</span></div>
+    </header>
+
+    <section class="stage">
+      <div id="ai-tile" class="tile tile-ai">
+        <div class="ai-visual"><div class="ai-orb"></div></div>
+        <div id="ai-bars" class="bars"><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span></div>
+        <div class="tile-label"><span class="name">Interviewer</span><span id="ai-sub" class="sub">Listening</span></div>
+      </div>
+
+      <div id="user-tile" class="tile tile-you">
+        <video id="cam-preview" class="hidden" autoplay muted playsinline></video>
+        <div id="user-initials" class="avatar-lg">?</div>
+        <div class="cam-off">Camera off</div>
+        <div class="tile-label"><span class="name">You</span><span id="user-sub" class="sub">Mic on</span><span id="user-bars" class="bars sm"><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span><span class="bar"></span></span></div>
+      </div>
+    </section>
+
+    <footer class="controls">
+      <div id="timer" class="timer">00:00</div>
+      <div class="controls-mid">
+        <button id="end-btn" class="btn-end" onclick="endInterview()" disabled>End interview</button>
+        <p id="room-hint" class="room-hint">Speak naturally. When you pause, the interviewer replies.</p>
+      </div>
+      <div id="rec-indicator" class="rec hidden"><span class="rec-dot"></span>REC</div>
+    </footer>
+  </main>
+
+  <script>
+    const MAX_RECORDING_BYTES = 50 * 1024 * 1024;
+    const TOKEN = (location.pathname.match(/^\/i\/([A-Za-z0-9_-]+)\/?$/) || [])[1] || "";
+    const ICONS = {
+      error: `<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 8v5M12 16.5v.01"/></svg>`,
+      expired: `<svg class="icon" viewBox="0 0 24 24"><circle cx="12" cy="12" r="9"/><path d="M12 7v5l3 2"/></svg>`,
+      resume: `<svg class="icon" viewBox="0 0 24 24"><path d="M12 3a3 3 0 0 0-3 3v6a3 3 0 0 0 6 0V6a3 3 0 0 0-3-3z"/><path d="M5 11a7 7 0 0 0 14 0M12 18v3"/></svg>`,
+      done: `<svg class="icon" viewBox="0 0 24 24"><path d="m5 12.5 4.5 4.5L19 7.5"/></svg>`,
+    };
+    let invite = null, interviewId = null;
+    let pc = null, userStream = null, audioCtx = null, rafId = null, clockTimer = null;
+    let recorder = null, recordedChunks = [], recMime = "";
+    let inInterview = false;
+
+    // ---------- helpers ----------
+    function $(id) { return document.getElementById(id); }
+    function showView(id) {
+      ["view-home", "view-loading", "view-state", "view-form", "view-interview"].forEach(v => $(v).classList.toggle("hidden", v !== id));
+      document.body.dataset.view = id;
+      window.scrollTo(0, 0);
+    }
+    function showError(elId, msg) {
+      const el = $(elId);
+      el.textContent = msg;
+      el.classList.toggle("hidden", !msg);
+    }
+    async function apiError(res, fallback) {
+      const body = await res.json().catch(() => ({}));
+      return typeof body.detail === "string" ? body.detail : fallback;
+    }
+    function initials(name) {
+      const parts = String(name || "").trim().split(/\s+/).filter(Boolean);
+      const letters = (parts[0]?.[0] || "") + (parts.length > 1 ? parts[parts.length - 1][0] : "");
+      return letters.toUpperCase() || "?";
+    }
+    function formatBytes(n) {
+      return n < 1024 * 1024 ? `${Math.max(1, Math.round(n / 1024))} KB` : `${(n / 1048576).toFixed(1)} MB`;
+    }
+    window.addEventListener("beforeunload", e => { if (inInterview) { e.preventDefault(); e.returnValue = ""; } });
+
+    // A centred card for every non-form state: invalid, expired, rejoin, submitted.
+    function showState(kind, title, text, button) {
+      $("state-icon").className = `state-icon${kind === "done" ? " good" : ""}`;
+      $("state-icon").innerHTML = ICONS[kind] || ICONS.error;
+      $("state-title").textContent = title;
+      $("state-text").textContent = text;
+      $("state-note").classList.add("hidden");
+      showError("state-error", "");
+      const btn = $("state-btn");
+      btn.classList.toggle("hidden", !button);
+      if (button) { btn.textContent = button.label; btn.disabled = false; btn.onclick = button.onClick; }
+      showView("view-state");
+    }
+
+    // ---------- candidate: invite ----------
+    async function loadInvite() {
+      showView("view-loading");
+      let res;
+      try { res = await fetch(`/api/v1/invite/${TOKEN}`); }
+      catch (_) { return showState("error", "Connection problem", "Check your internet connection and reload the page."); }
+      if (!res.ok) {
+        return showState("error", "This link isn't valid", await apiError(res, "This interview link is not valid") + ". Please ask the recruiter for a new link.");
+      }
+      invite = await res.json();
+      const company = invite.company || "the hiring team";
+      if (invite.state === "expired") {
+        return showState("expired", "This link has expired", `Ask the ${company} hiring team to send you a new interview link.`);
+      }
+      if (invite.state === "finished") {
+        return showState("done", "Interview submitted", `Your interview for ${invite.job_title} has been sent to the ${company} hiring team. You can close this tab.`);
+      }
+      if (invite.state === "started") {
+        interviewId = invite.interview_id;
+        return showState("resume", "Continue your interview", `Your resume is saved. Rejoin your ${invite.job_title} interview with ${company}.`,
+          { label: "Continue interview", onClick: rejoinInterview });
+      }
+      $("inv-company").textContent = company;
+      $("inv-company-2").textContent = `the ${company} hiring team`;
+      $("inv-company-3").textContent = `the ${company} hiring team`;
+      $("inv-job").textContent = invite.job_title;
+      $("name-input").value = invite.candidate_name || "";
+      $("email-view").textContent = invite.candidate_email || "";
+      document.title = `${invite.job_title} interview · ${company}`;
+      showView("view-form");
+    }
+
+    function updateFileLabel() {
+      const f = $("resume-file").files[0];
+      $("drop-zone").classList.toggle("has-file", !!f);
+      $("file-title").textContent = f ? f.name : "Upload your resume";
+      $("file-sub").textContent = f ? `${formatBytes(f.size)}. Click to replace.` : "PDF or DOCX, up to 5 MB";
+    }
+
+    (function setupDropZone() {
+      const zone = $("drop-zone");
+      ["dragenter", "dragover"].forEach(t => zone.addEventListener(t, e => { e.preventDefault(); zone.classList.add("drag"); }));
+      ["dragleave", "drop"].forEach(t => zone.addEventListener(t, e => { e.preventDefault(); zone.classList.remove("drag"); }));
+      zone.addEventListener("drop", e => {
+        if (e.dataTransfer && e.dataTransfer.files.length) {
+          $("resume-file").files = e.dataTransfer.files;
+          updateFileLabel();
+        }
+      });
+    })();
+
+    function enterRoom(name) {
+      $("live-role-label").textContent = `${invite.job_title}  ·  ${invite.company}`;
+      $("user-initials").textContent = initials(name);
+      $("end-btn").textContent = "End interview";
+      showView("view-interview");
+      inInterview = true;
+    }
+
+    async function startInterview(event) {
+      event.preventDefault();
+      showError("form-error", "");
+      const name = $("name-input").value.trim();
+      const file = $("resume-file").files[0];
+      if (!name) return showError("form-error", "Please enter your name.");
+      if (!file) return showError("form-error", "Please upload your resume.");
+      if (!/\.(pdf|docx)$/i.test(file.name)) return showError("form-error", "Resume must be a .pdf or .docx file.");
+      if (file.size > 5 * 1024 * 1024) return showError("form-error", "Resume must be 5 MB or smaller.");
+      if (!$("consent-check").checked) return showError("form-error", "Please agree to the recording to continue.");
+
+      const btn = $("start-btn");
+      btn.disabled = true;
+      $("start-label").textContent = "Reading your resume…";
+
+      const fd = new FormData();
+      fd.append("token", TOKEN);
+      fd.append("name", name);
+      fd.append("github", $("github-input").value.trim());
+      fd.append("consent", "true");
+      fd.append("file", file);
+
+      try {
+        const res = await fetch("/api/v1/pre-interview", { method: "POST", body: fd });
+        if (!res.ok) throw new Error(await apiError(res, "Could not start the interview."));
+        const data = await res.json();
+        interviewId = data.id;
+        invite.candidate_name = name;
+        enterRoom(name);
+        await connectVoiceAndRecord();
+      } catch (e) {
+        inInterview = false;
+        cleanupVoice();
+        if (interviewId) {
+          // The resume is saved; only the call failed. Offer a retry.
+          showState("resume", "Couldn't connect", e.message || "Could not start the interview.", { label: "Try again", onClick: rejoinInterview });
+        } else {
+          showView("view-form");
+          showError("form-error", e.message || "Could not start the interview.");
+        }
+      } finally {
+        btn.disabled = false;
+        $("start-label").textContent = "Start interview";
+      }
+    }
+
+    async function rejoinInterview() {
+      $("state-btn").disabled = true;
+      enterRoom(invite.candidate_name);
+      try {
+        await connectVoiceAndRecord();
+      } catch (e) {
+        inInterview = false;
+        cleanupVoice();
+        showState("resume", "Couldn't connect", e.message || "Could not start the interview.", { label: "Try again", onClick: rejoinInterview });
+      }
+    }
+
+    // ---------- live call + recording ----------
+    function createMeter(ctx, stream) {
+      const analyser = ctx.createAnalyser();
+      analyser.fftSize = 512;
+      ctx.createMediaStreamSource(stream).connect(analyser);
+      const buf = new Uint8Array(analyser.fftSize);
+      return () => {
+        analyser.getByteTimeDomainData(buf);
+        let sum = 0;
+        for (let i = 0; i < buf.length; i++) { const v = (buf[i] - 128) / 128; sum += v * v; }
+        return Math.min(1, Math.sqrt(sum / buf.length) * 3.2);
+      };
+    }
+
+    // Drives the speaking ring, glow and waveform bars of one tile.
+    function updateTile(tile, barsEl, subEl, level, active, idleText, maxHeight) {
+      tile.style.setProperty("--level", level.toFixed(3));
+      tile.classList.toggle("speaking", active);
+      const bars = barsEl.children, n = bars.length;
+      for (let i = 0; i < n; i++) {
+        const weight = 0.35 + 0.65 * Math.sin(Math.PI * (i + 0.5) / n);
+        bars[i].style.height = `${Math.max(3, level * weight * maxHeight)}px`;
+        bars[i].style.opacity = active ? "1" : "0.35";
+      }
+      subEl.textContent = active ? "Speaking" : idleText;
+    }
+
+    async function getMedia() {
+      try {
+        return await navigator.mediaDevices.getUserMedia({ audio: true, video: { width: 640, height: 360, frameRate: 15 } });
+      } catch (_) {
+        try {
+          return await navigator.mediaDevices.getUserMedia({ audio: true });
+        } catch (e) {
+          throw new Error("Microphone access was blocked. Allow the microphone in your browser's address bar, then try again.");
+        }
+      }
+    }
+
+    function pickMime(hasVideo) {
+      const options = hasVideo
+        ? ["video/webm;codecs=vp8,opus", "video/webm", "video/mp4"]
+        : ["audio/webm;codecs=opus", "audio/webm", "audio/mp4"];
+      return options.find(t => window.MediaRecorder && MediaRecorder.isTypeSupported(t)) || "";
+    }
+
+    function startClock() {
+      const t0 = Date.now();
+      clockTimer = setInterval(() => {
+        const s = Math.floor((Date.now() - t0) / 1000);
+        $("timer").textContent = `${String(Math.floor(s / 60)).padStart(2, "0")}:${String(s % 60).padStart(2, "0")}`;
+      }, 1000);
+    }
+
+    async function connectVoiceAndRecord() {
+      userStream = await getMedia();
+      const hasVideo = userStream.getVideoTracks().length > 0;
+      if (hasVideo) {
+        $("cam-preview").srcObject = userStream;
+        $("cam-preview").classList.remove("hidden");
+        $("user-tile").classList.add("has-video");
+      }
+
+      audioCtx = new AudioContext();
+      const mixDest = audioCtx.createMediaStreamDestination();
+      const userMeter = createMeter(audioCtx, userStream);
+      audioCtx.createMediaStreamSource(userStream).connect(mixDest);
+      let aiMeter = null;
+
+      pc = new RTCPeerConnection();
+      const audioEl = document.createElement("audio");
+      audioEl.autoplay = true;
+      pc.ontrack = (e) => {
+        const remote = e.streams[0];
+        audioEl.srcObject = remote;
+        aiMeter = createMeter(audioCtx, remote);
+        audioCtx.createMediaStreamSource(remote).connect(mixDest);
+      };
+      userStream.getAudioTracks().forEach(t => pc.addTrack(t, userStream));
+
+      const offer = await pc.createOffer();
+      await pc.setLocalDescription(offer);
+      const sdpRes = await fetch(`/api/v1/session/${interviewId}`, {
+        method: "POST",
+        headers: { "Content-Type": "application/sdp" },
+        body: offer.sdp,
+      });
+      if (!sdpRes.ok) throw new Error(await apiError(sdpRes, "Could not connect to the interviewer. Please try again."));
+      await pc.setRemoteDescription({ type: "answer", sdp: await sdpRes.text() });
+
+      // One file: candidate video (if any) + mixed candidate/AI audio, kept small for storage limits.
+      recMime = pickMime(hasVideo);
+      if (recMime) {
+        const tracks = [...mixDest.stream.getAudioTracks(), ...userStream.getVideoTracks()];
+        recordedChunks = [];
+        recorder = new MediaRecorder(new MediaStream(tracks), {
+          mimeType: recMime,
+          videoBitsPerSecond: 300000,
+          audioBitsPerSecond: 32000,
+        });
+        recorder.ondataavailable = (e) => { if (e.data && e.data.size > 0) recordedChunks.push(e.data); };
+        recorder.start(1000);
+      }
+
+      $("status-dot").classList.add("live");
+      $("status-text").textContent = "Live";
+      $("rec-indicator").classList.toggle("hidden", !recorder);
+      if (!recorder) $("room-hint").textContent = "This browser can't record, but your answers are still transcribed.";
+      $("end-btn").disabled = false;
+      startClock();
+
+      const aiTile = $("ai-tile"), aiBars = $("ai-bars"), aiSub = $("ai-sub");
+      const uTile = $("user-tile"), uBars = $("user-bars"), uSub = $("user-sub");
+      function tick() {
+        const al = aiMeter ? aiMeter() : 0;
+        const ul = userMeter();
+        updateTile(aiTile, aiBars, aiSub, al, al > 0.06 && al >= ul, "Listening", 40);
+        updateTile(uTile, uBars, uSub, ul, ul > 0.06 && ul > al, "Mic on", 16);
+        rafId = requestAnimationFrame(tick);
+      }
+      rafId = requestAnimationFrame(tick);
+    }
+
+    function stopRecorder() {
+      if (!recorder || recorder.state === "inactive") return Promise.resolve();
+      return new Promise(resolve => { recorder.onstop = resolve; recorder.stop(); });
+    }
+
+    function cleanupVoice() {
+      if (rafId) cancelAnimationFrame(rafId);
+      if (clockTimer) clearInterval(clockTimer);
+      if (userStream) userStream.getTracks().forEach(t => t.stop());
+      if (pc) { pc.getSenders().forEach(s => s.track && s.track.stop()); pc.close(); }
+      if (audioCtx) audioCtx.close().catch(() => {});
+      rafId = null; clockTimer = null; userStream = null; pc = null; audioCtx = null;
+      $("end-btn").disabled = true;
+      $("cam-preview").srcObject = null;
+      $("cam-preview").classList.add("hidden");
+      $("user-tile").classList.remove("has-video", "speaking");
+      $("ai-tile").classList.remove("speaking");
+      $("status-dot").classList.remove("live");
+      $("status-text").textContent = "Connecting…";
+      $("rec-indicator").classList.add("hidden");
+      $("timer").textContent = "00:00";
+    }
+
+    async function uploadRecording() {
+      if (!recordedChunks.length) return "No recording was captured, but your answers were transcribed.";
+      const blob = new Blob(recordedChunks, { type: recMime.split(";")[0] });
+      if (blob.size > MAX_RECORDING_BYTES) return "The recording was too large to save (over 50 MB), but your answers were transcribed.";
+      const ext = recMime.includes("mp4") ? "mp4" : "webm";
+      const fd = new FormData();
+      fd.append("file", blob, `recording.${ext}`);
+      try {
+        const res = await fetch(`/api/v1/recording/${interviewId}`, { method: "POST", body: fd });
+        if (!res.ok) return "The recording could not be saved: " + (await apiError(res, "upload failed"));
+        return "";
+      } catch (_) {
+        return "The recording could not be saved (network error), but your answers were transcribed.";
+      }
+    }
+
+    async function endInterview() {
+      $("end-btn").disabled = true;
+      $("end-btn").textContent = "Ending…";
+      await stopRecorder();
+      cleanupVoice();
+
+      showState("resume", "Submitting your interview…", "Saving your recording. Please keep this tab open.");
+      $("state-icon").innerHTML = `<div class="spinner" style="margin:0"></div>`;
+      const problem = await uploadRecording();
+      await fetch(`/api/v1/interviews/${interviewId}/end`, { method: "POST" }).catch(() => {});
+      inInterview = false;
+
+      const first = (invite.candidate_name || "").trim().split(/\s+/)[0];
+      showState("done", `Thank you${first ? ", " + first : ""}`,
+        `Your interview for ${invite.job_title} has been submitted to the ${invite.company} hiring team. They'll be in touch about next steps. You can close this tab.`);
+      if (problem) { $("state-note").textContent = problem; $("state-note").classList.remove("hidden"); }
+    }
+
+    // ---------- boot ----------
+    if (TOKEN) {
+      document.body.dataset.page = "candidate";
+      loadInvite();
+    } else if (location.pathname !== "/") {
+      showState("error", "Page not found", "Check the link and try again.");
+    }
+  </script>
+</body>
+</html>
