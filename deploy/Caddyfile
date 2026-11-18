@@ -1,5 +1,0 @@
-# Caddy gets and renews the HTTPS certificate for this address automatically.
-DOMAIN_PLACEHOLDER {
-	encode gzip
-	reverse_proxy 127.0.0.1:8000
-}

@@ -134,7 +134,6 @@ In Supabase, go to **Authentication**:
 2. **Emails:** Supabase's built-in email only sends a few emails an hour. Connect a real email service (Resend, Amazon SES, Postmark…) under **SMTP Settings**. Just testing? Turn off **Confirm email** instead.
 3. **Google sign-in (optional):** turn on **Google** under Sign In / Providers. The "Continue with Google" button appears by itself.
 
-Putting it on a server? Follow [`deploy/DEPLOY.md`](deploy/DEPLOY.md).
 </details>
 
 ---
